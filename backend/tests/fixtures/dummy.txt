@@ -1,0 +1,4 @@
+The project codename is Project Alpha.
+The launch date is exactly 2027-10-15.
+The project manager is Sarah Jenkins.
+This document contains simple facts meant for testing exact BM25 matches.

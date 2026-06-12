@@ -1,0 +1,68 @@
+{
+  "passed": 7,
+  "failed": 2,
+  "warnings": 0,
+  "failing_modules": [
+    "Generation",
+    "Streaming"
+  ],
+  "details": [
+    {
+      "timestamp": "2026-06-12T16:59:20.528185",
+      "module_name": "API",
+      "test_name": "Health Check",
+      "status": "PASS"
+    },
+    {
+      "timestamp": "2026-06-12T16:59:20.825955",
+      "module_name": "Generation",
+      "test_name": "Groq Dry Run",
+      "status": "PASS"
+    },
+    {
+      "timestamp": "2026-06-12T16:59:21.196862",
+      "module_name": "Ingestion",
+      "test_name": "Upload Fixtures",
+      "status": "PASS"
+    },
+    {
+      "timestamp": "2026-06-12T16:59:21.198477",
+      "module_name": "Router",
+      "test_name": "Query Routing Logic",
+      "status": "PASS"
+    },
+    {
+      "timestamp": "2026-06-12T16:59:26.061467",
+      "module_name": "Retrieval",
+      "test_name": "BM25 Exact Match",
+      "status": "PASS"
+    },
+    {
+      "timestamp": "2026-06-12T16:59:26.117760",
+      "module_name": "Retrieval",
+      "test_name": "Dense Semantic Match",
+      "status": "PASS"
+    },
+    {
+      "timestamp": "2026-06-12T16:59:32.961458",
+      "module_name": "Reranking",
+      "test_name": "Reranker Triggers",
+      "status": "PASS"
+    },
+    {
+      "timestamp": "2026-06-12T16:59:33.408872",
+      "module_name": "Streaming",
+      "test_name": "SSE Delta & Final JSON",
+      "status": "FAIL",
+      "error_message": "peer closed connection without sending complete message body (incomplete chunked read)",
+      "document_id": "query_1"
+    },
+    {
+      "timestamp": "2026-06-12T16:59:33.693258",
+      "module_name": "Generation",
+      "test_name": "Fallback Behavior",
+      "status": "FAIL",
+      "error_message": "peer closed connection without sending complete message body (incomplete chunked read)"
+    }
+  ]
+}
