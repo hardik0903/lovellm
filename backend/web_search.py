@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
 import warnings
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 import wikipedia
 from logger import logger
 
