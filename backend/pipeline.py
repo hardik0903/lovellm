@@ -14,7 +14,7 @@ from generator import AnswerGenerator
 from web_search import WebSearcher
 from web_scraper import WebScraper
 from chunking import DocumentChunker
-from web_answerer import WebAnswerer
+from answer_driving_agent import AnswerDrivingAgent
 from rank_bm25 import BM25Okapi
 import re
 
@@ -53,7 +53,7 @@ class PipelineOrchestrator:
         self.web_retriever = MultiPassRetriever(self.searcher)
         self.local_retriever = local_retriever
         self.generator = generator
-        self.web_answerer = WebAnswerer(generator)
+        self.answer_driving_agent = AnswerDrivingAgent()
 
     async def execute(self, raw_query: str, has_documents: bool = False) -> AsyncGenerator[Dict[str, Any], None]:
         # 0. Conversation Context (Resolve entities)
@@ -97,7 +97,7 @@ class PipelineOrchestrator:
             # Buffer the direct web generator to check confidence before yielding
             direct_events = []
             final_direct_obj = None
-            async for event in self.web_answerer.answer_direct_web(resolved_query):
+            async for event in self.answer_driving_agent.answer(resolved_query):
                 direct_events.append(event)
                 if event["event"] == "final":
                     try:
