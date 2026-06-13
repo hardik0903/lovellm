@@ -35,17 +35,31 @@ class AnswerVerifier:
         if len(answer_text.split()) < 20 and len(sections) > 2:
             is_complete = False
             
+        # 4. Relevance (Compare against question)
+        original_query = answer_plan.get("original_query", "").lower()
+        concept = original_query
+        for prefix in ["what is a ", "what is an ", "what is ", "who is ", "define "]:
+            if original_query.startswith(prefix):
+                concept = original_query[len(prefix):].strip("? ")
+                break
+                
+        is_relevant = True
+        # Simple heuristic: If the answer is extremely short and doesn't mention the core concept, it might be irrelevant.
+        if concept and len(concept) > 3 and concept not in answer_text:
+            is_relevant = False
+            
         verification_result = {
-            "passed": len(missing_sections) == 0 and (has_citations or len(sources) == 0) and is_complete,
+            "passed": len(missing_sections) == 0 and (has_citations or len(sources) == 0) and is_complete and is_relevant,
             "missing_sections": missing_sections,
             "has_citations": has_citations,
-            "is_complete": is_complete
+            "is_complete": is_complete,
+            "is_relevant": is_relevant
         }
         
         # If deterministic verification failed, do a tiny LLM pass to double check
         if not verification_result["passed"] and answer_text:
             logger.info("Deterministic verification failed, falling back to LLM verifier pass.")
-            prompt = f"Does the following answer provide a reasonable (even if brief) response to the query? Answer strictly with YES or NO.\n\nAnswer: {answer_text}"
+            prompt = f"Does the following answer provide a reasonable and relevant response to the query: '{original_query}'? Answer strictly with YES or NO.\n\nAnswer: {answer_text}"
             try:
                 response = await self.client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],

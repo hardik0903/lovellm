@@ -24,29 +24,46 @@ class WebAnswerer:
             
         keywords = [word.lower() for word in query.split() if len(word) > 3]
         query_lower = query.lower()
-        
+        # Identify the core concept by stripping common question words
+        concept = query_lower
+        for prefix in ["what is a ", "what is an ", "what is ", "who is ", "define "]:
+            if query_lower.startswith(prefix):
+                concept = query_lower[len(prefix):].strip("? ")
+                break
+                
         paragraphs = text.split('\n')
         best_p = None
         best_score = 0
         
         for p in paragraphs:
-            p_lower = p.lower()
-            words = p.split()
+            p_clean = p.strip()
+            p_lower = p_clean.lower()
+            words = p_clean.split()
             if len(words) < 8 or len(words) > 100:
+                continue
+                
+            # Penalize paragraphs that are just other questions (like "What is the definition of a math inequality?")
+            if p_clean.endswith("?") and (p_lower.startswith("what") or p_lower.startswith("how")):
                 continue
                 
             score = sum(1 for kw in keywords if kw in p_lower)
             
+            # Require the core concept to be present
+            if concept and concept not in p_lower:
+                continue
+            
             # Boost score if paragraph starts with definition patterns
-            if " is " in p_lower[:30] or " are " in p_lower[:30]:
+            if p_lower.startswith(concept + " is") or p_lower.startswith(concept + " are"):
+                score += 5
+            elif " is a " in p_lower[:50] or " is an " in p_lower[:50] or " are " in p_lower[:50]:
                 score += 2
                 
             if score > best_score:
                 best_score = score
-                best_p = p
+                best_p = p_clean
                 
         if best_p and best_score >= max(1, len(keywords) // 2):
-            confidence = "high" if best_score >= len(keywords) else "medium"
+            confidence = "high" if best_score >= 5 else "medium"
             return best_p[:500] + ("..." if len(best_p) > 500 else ""), confidence
             
         return snippet, "low"
@@ -54,8 +71,8 @@ class WebAnswerer:
     async def answer_direct_web(self, query: str) -> AsyncGenerator[Dict[str, Any], None]:
         logger.info(f"Executing direct_web for query: {query}")
         
-        # 1. Search
-        results = self.searcher.search(query, max_results=1)
+        # 1. Search (Fetch up to 3 to be robust against bad links)
+        results = self.searcher.search(query, max_results=3)
         if not results:
             fallback = {
                 "mode": "direct_web",
@@ -67,13 +84,40 @@ class WebAnswerer:
             yield {"event": "final", "data": json.dumps(fallback)}
             return
             
-        top_result = results[0]
+        extracted_answer = None
+        extraction_confidence = "low"
+        top_result = None
         
-        # 2. Scrape
-        scraped = await self.scraper.scrape(top_result["url"])
-        
-        # 3. Extract answer directly
-        extracted_answer, extraction_confidence = self._extract_direct_answer(query, scraped["text"], top_result["snippet"])
+        for result in results:
+            url = result.get("url", "")
+            # Skip invalid or redirect URLs
+            if not url.startswith("http") or "/clev?event=" in url:
+                continue
+                
+            # 2. Scrape
+            scraped = await self.scraper.scrape(url)
+            if not scraped["success"]:
+                continue
+                
+            # 3. Extract answer directly
+            ans, conf = self._extract_direct_answer(query, scraped["text"], result["snippet"])
+            if conf in ["high", "medium"]:
+                extracted_answer = ans
+                extraction_confidence = conf
+                top_result = result
+                break
+                
+        if not top_result:
+            # We failed to find a valid high-confidence answer across the top 3 results
+            fallback = {
+                "mode": "direct_web",
+                "answer": "Extraction failed.",
+                "sources": [],
+                "confidence": "low",
+                "needs_clarification": False
+            }
+            yield {"event": "final", "data": json.dumps(fallback)}
+            return
         
         # 4. Stream response (mimic streaming for immediate UI rendering)
         yield {
