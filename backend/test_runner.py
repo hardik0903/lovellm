@@ -207,11 +207,12 @@ class TestHarness:
                                     parsed = json.loads(data_str)
                                     if "answer" in parsed and "mode" in parsed:
                                         final_json = parsed
-                                except: pass
-                    assert final_json is not None
+                                except Exception as err:
+                                    print("Err parsing:", err, data_str)
+                    assert final_json is not None, "final_json was None"
                     assert final_json["mode"] == "direct_web", f"Expected direct_web, got {final_json['mode']}"
-                    if not final_json["sources"]:
-                        assert "I could not find any web results" in final_json["answer"]
+                    if not final_json.get("sources"):
+                        assert "evidence" in final_json["answer"].lower() or "web results" in final_json["answer"].lower(), f"Unexpected answer: {final_json['answer']}"
                     else:
                         assert final_json["sources"][0]["type"] == "web"
             self._log_result("Web Search", "Direct Web Routing & Extraction", "PASS")
@@ -228,17 +229,63 @@ class TestHarness:
                                     parsed = json.loads(data_str)
                                     if "answer" in parsed and "mode" in parsed:
                                         final_json = parsed
-                                except: pass
-                    assert final_json is not None
+                                except Exception as err:
+                                    print("Err parsing:", err, data_str)
+                    assert final_json is not None, "final_json was None in web_rag test"
                     assert final_json["mode"] == "web_rag", f"Expected web_rag, got {final_json['mode']}"
-                    if not final_json["sources"]:
-                        assert "could not find any web results" in final_json["answer"].lower() or "could not extract" in final_json["answer"].lower()
+                    if not final_json.get("sources"):
+                        assert "evidence" in final_json["answer"].lower() or "web results" in final_json["answer"].lower(), f"Unexpected answer: {final_json['answer']}"
                     else:
                         assert final_json["sources"][0]["type"] == "web"
-            self._log_result("Web Search", "Web RAG Synthesis", "PASS")
+            self._log_result("Web Search", "Web Modes E2E", "PASS")
             
         except Exception as e:
             self._log_result("Web Search", "Web Modes E2E", "FAIL", e)
+
+    async def check_benchmark_definition(self):
+        try:
+            query = "What is eigenvector?"
+            async with httpx.AsyncClient() as client:
+                async with client.stream("POST", f"{BASE_URL}/chat", json={"query": query}) as response:
+                    final_json = None
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: "):
+                            data_str = line[6:].strip()
+                            if data_str:
+                                try:
+                                    parsed = json.loads(data_str)
+                                    if "interpretation" in parsed:
+                                        final_json = parsed
+                                except: pass
+                    assert final_json is not None
+                    # Ensure deterministic mode and no LLM planning
+                    assert final_json["interpretation"]["mode"] == "direct_web"
+                    assert "eigenvector" in final_json["interpretation"]["concepts"][0].lower()
+            self._log_result("Benchmark", "Definition Benchmark", "PASS")
+        except Exception as e:
+            self._log_result("Benchmark", "Definition Benchmark", "FAIL", e)
+
+    async def check_benchmark_comparison(self):
+        try:
+            query = "Compare PCA and SVD"
+            async with httpx.AsyncClient() as client:
+                async with client.stream("POST", f"{BASE_URL}/chat", json={"query": query}) as response:
+                    final_json = None
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: "):
+                            data_str = line[6:].strip()
+                            if data_str:
+                                try:
+                                    parsed = json.loads(data_str)
+                                    if "verification" in parsed:
+                                        final_json = parsed
+                                except Exception as err:
+                                    print("Err parsing:", err, data_str)
+                    assert final_json is not None, "final_json was None in comparison benchmark"
+                    assert final_json["interpretation"]["intent"] == "comparison"
+            self._log_result("Benchmark", "Comparison Benchmark", "PASS")
+        except Exception as e:
+            self._log_result("Benchmark", "Comparison Benchmark", "FAIL", e)
 
     async def run_all(self):
         print("=== Starting Test Harness ===")
@@ -249,6 +296,8 @@ class TestHarness:
         await self.check_generation_and_streaming()
         await self.check_fallback()
         await self.check_web_modes()
+        await self.check_benchmark_definition()
+        await self.check_benchmark_comparison()
         
         print("\n=== Human Readable Report ===")
         print(f"Total Passed: {self.results['passed']}")

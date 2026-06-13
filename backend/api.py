@@ -14,7 +14,7 @@ from bm25_store import BM25Store
 from retriever import HybridRetriever
 from generator import AnswerGenerator
 from query_router import MainQueryRouter
-from web_answerer import WebAnswerer
+from pipeline import PipelineOrchestrator
 
 app = FastAPI(title="Document Q&A Service")
 
@@ -35,7 +35,7 @@ retriever = HybridRetriever(vector_store, bm25_store)
 generator = AnswerGenerator()
 ingestor = DocumentIngestor()
 main_router = MainQueryRouter()
-web_answerer = WebAnswerer(generator)
+orchestrator = PipelineOrchestrator(generator, retriever)
 
 class ChatRequest(BaseModel):
     query: str
@@ -79,19 +79,8 @@ async def chat_endpoint(request: ChatRequest):
         
     logger.info(f"Received chat query: {query}")
     
-    # 1. Determine the mode
     has_docs = vector_store.collection.count() > 0
-    mode = main_router.route(query, has_documents=has_docs)
-    
-    # 2. Execute the appropriate pipeline
-    if mode == "direct_web":
-        return EventSourceResponse(web_answerer.answer_direct_web(query))
-    elif mode == "web_rag":
-        return EventSourceResponse(web_answerer.answer_web_rag(query))
-    else:
-        # doc_rag
-        top_candidates = retriever.retrieve(query, top_k=5)
-        return EventSourceResponse(generator.generate_stream(query, top_candidates, mode="doc_rag"))
+    return EventSourceResponse(orchestrator.execute(query, has_documents=has_docs))
 
 @app.get("/health")
 def health_check():

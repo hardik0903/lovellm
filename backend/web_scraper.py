@@ -9,11 +9,23 @@ class WebScraper:
 
     async def fetch_page(self, url: str) -> Optional[str]:
         """Asynchronously fetches the HTML of a webpage."""
+        headers = {
+            "User-Agent": "lovellm_assistant/1.0 (test@example.com)",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+        }
         try:
-            async with aiohttp.ClientSession(timeout=self.timeout) as session:
+            async with aiohttp.ClientSession(timeout=self.timeout, headers=headers) as session:
                 async with session.get(url) as response:
                     if response.status == 200:
-                        return await response.text()
+                        content_type = response.headers.get("Content-Type", "").lower()
+                        if "text/html" not in content_type and "text/plain" not in content_type:
+                            logger.warning(f"Skipping {url}, unsupported content type: {content_type}")
+                            return None
+                        try:
+                            return await response.text()
+                        except UnicodeDecodeError:
+                            logger.warning(f"Skipping {url}, cannot decode text.")
+                            return None
                     else:
                         logger.warning(f"Failed to fetch {url}, status code: {response.status}")
                         return None
