@@ -41,7 +41,7 @@ class QueryUnderstandingEngine:
                 break
                 
         # Basic intent
-        intent = "definition" if "what is" in normalized_query or "define" in normalized_query else "fact_lookup"
+        intent = "definition" if "what is" in normalized_query or "define" in normalized_query else "simple_fact"
 
         return {
             "original_query": original_query,

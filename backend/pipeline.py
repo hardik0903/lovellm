@@ -14,6 +14,7 @@ from generator import AnswerGenerator
 from web_search import WebSearcher
 from web_scraper import WebScraper
 from chunking import DocumentChunker
+from web_answerer import WebAnswerer
 from rank_bm25 import BM25Okapi
 import re
 
@@ -52,11 +53,12 @@ class PipelineOrchestrator:
         self.web_retriever = MultiPassRetriever(self.searcher)
         self.local_retriever = local_retriever
         self.generator = generator
+        self.web_answerer = WebAnswerer(generator)
 
     async def execute(self, raw_query: str, has_documents: bool = False) -> AsyncGenerator[Dict[str, Any], None]:
         # 0. Conversation Context (Resolve entities)
         resolved_query = self.context.resolve_references(raw_query)
-        logger.info(f"Resolved Query: {resolved_query}")
+        logger.info(f"[ROUTER] Resolved Query: {resolved_query}")
         
         # 1. Query Understanding
         query_plan = await self.qu_engine.understand(resolved_query, has_documents)
@@ -68,7 +70,13 @@ class PipelineOrchestrator:
         search_plan = self.search_planner.plan(query_plan)
         
         mode = search_plan.get("mode", "direct_web")
+        is_complex = search_plan.get("is_complex", False)
+        intent = search_plan.get("intent", "unknown")
+        
+        logger.info(f"[ROUTER] Intent: {intent} | Complex: {is_complex} | Target Route: {mode}")
+
         if mode == "clarify":
+            logger.info(f"[ROUTER] Route executed: clarify | used_groq: True | confidence: low")
             yield {
                 "event": "final",
                 "data": json.dumps({
@@ -81,6 +89,41 @@ class PipelineOrchestrator:
                 })
             }
             return
+
+        # =========================================================
+        # FAST PATH (direct_web)
+        # =========================================================
+        if mode == "direct_web":
+            # Buffer the direct web generator to check confidence before yielding
+            direct_events = []
+            final_direct_obj = None
+            async for event in self.web_answerer.answer_direct_web(resolved_query):
+                direct_events.append(event)
+                if event["event"] == "final":
+                    try:
+                        final_direct_obj = json.loads(event["data"])
+                    except:
+                        pass
+            
+            if final_direct_obj and final_direct_obj.get("confidence") in ["high", "medium"]:
+                logger.info(f"[ROUTER] Route executed: direct_web | used_groq: False | confidence: {final_direct_obj.get('confidence')}")
+                final_direct_obj["interpretation"] = {
+                    "intent": intent,
+                    "rewritten_query": search_plan.get("normalized_query"),
+                    "mode": "direct_web"
+                }
+                direct_events[-1]["data"] = json.dumps(final_direct_obj)
+                for event in direct_events:
+                    yield event
+                return
+            else:
+                logger.info("[ROUTER] Fast path extraction confidence was low. Escalating to web_rag.")
+                mode = "web_rag"
+                search_plan["mode"] = "web_rag"
+
+        # =========================================================
+        # COMPLEX PATH (doc_rag or web_rag)
+        # =========================================================
 
         # 3. Retrieval Memory setup
         memory = RetrievalMemory()
@@ -166,7 +209,7 @@ class PipelineOrchestrator:
             return
             
         # 10. Answer Verification
-        verified_obj = self.answer_verifier.verify(final_answer_obj, answer_plan)
+        verified_obj = await self.answer_verifier.verify(final_answer_obj, answer_plan)
         
         # Attach interpretation metadata for the UI
         verified_obj["interpretation"] = {
@@ -174,6 +217,9 @@ class PipelineOrchestrator:
             "rewritten_query": search_plan.get("normalized_query"),
             "mode": search_plan.get("mode")
         }
+        
+        final_confidence = verified_obj.get("confidence", "unknown")
+        logger.info(f"[ROUTER] Route executed: {mode} | used_groq: True | confidence: {final_confidence}")
         
         # 11. Final Response
         yield {

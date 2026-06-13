@@ -14,28 +14,42 @@ class WebAnswerer:
         self.chunker = DocumentChunker()
         self.generator = generator
 
-    def _extract_direct_answer(self, query: str, text: str, snippet: str) -> str:
+    def _extract_direct_answer(self, query: str, text: str, snippet: str) -> tuple[str, str]:
         """
-        Simple heuristic to extract an answer without using an LLM.
-        If we find a paragraph containing query keywords, we return it.
-        Otherwise, we fall back to the search engine snippet.
+        Improved heuristic to extract an answer without using an LLM.
+        Returns a tuple of (answer_text, confidence).
         """
         if not text:
-            return snippet
+            return snippet, "low"
             
-        # Basic keyword extraction from query
         keywords = [word.lower() for word in query.split() if len(word) > 3]
+        query_lower = query.lower()
         
         paragraphs = text.split('\n')
+        best_p = None
+        best_score = 0
+        
         for p in paragraphs:
             p_lower = p.lower()
-            # If the paragraph has at least a few words and contains a keyword
-            if len(p.split()) > 10 and any(kw in p_lower for kw in keywords):
-                # Return the first matching substantial paragraph (up to ~400 chars)
-                return p[:400] + ("..." if len(p) > 400 else "")
+            words = p.split()
+            if len(words) < 8 or len(words) > 100:
+                continue
                 
-        # Fallback to the search snippet if no good paragraph was found
-        return snippet
+            score = sum(1 for kw in keywords if kw in p_lower)
+            
+            # Boost score if paragraph starts with definition patterns
+            if " is " in p_lower[:30] or " are " in p_lower[:30]:
+                score += 2
+                
+            if score > best_score:
+                best_score = score
+                best_p = p
+                
+        if best_p and best_score >= max(1, len(keywords) // 2):
+            confidence = "high" if best_score >= len(keywords) else "medium"
+            return best_p[:500] + ("..." if len(best_p) > 500 else ""), confidence
+            
+        return snippet, "low"
 
     async def answer_direct_web(self, query: str) -> AsyncGenerator[Dict[str, Any], None]:
         logger.info(f"Executing direct_web for query: {query}")
@@ -59,7 +73,7 @@ class WebAnswerer:
         scraped = await self.scraper.scrape(top_result["url"])
         
         # 3. Extract answer directly
-        extracted_answer = self._extract_direct_answer(query, scraped["text"], top_result["snippet"])
+        extracted_answer, extraction_confidence = self._extract_direct_answer(query, scraped["text"], top_result["snippet"])
         
         # 4. Stream response (mimic streaming for immediate UI rendering)
         yield {
@@ -77,7 +91,7 @@ class WebAnswerer:
                     "type": "web"
                 }
             ],
-            "confidence": "high" if scraped["success"] else "medium",
+            "confidence": extraction_confidence,
             "needs_clarification": False
         }
         
