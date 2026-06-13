@@ -31,40 +31,70 @@ class WebAnswerer:
                 concept = query_lower[len(prefix):].strip("? ")
                 break
                 
-        paragraphs = text.split('\n')
-        best_p = None
+        import re
+        # Normalize whitespace (replace newlines with spaces)
+        text_normalized = re.sub(r'\s+', ' ', text)
+        # Split text into sentences using regex
+        sentences = re.split(r'(?<=[.!?])\s+', text_normalized)
+        
+        best_idx = -1
         best_score = 0
         
-        for p in paragraphs:
-            p_clean = p.strip()
-            p_lower = p_clean.lower()
-            words = p_clean.split()
-            if len(words) < 8 or len(words) > 100:
-                continue
-                
-            # Penalize paragraphs that are just other questions (like "What is the definition of a math inequality?")
-            if p_clean.endswith("?") and (p_lower.startswith("what") or p_lower.startswith("how")):
-                continue
-                
-            score = sum(1 for kw in keywords if kw in p_lower)
+        for i, s in enumerate(sentences):
+            # Clean up whitespace and zero-width characters
+            import string
+            s_clean = ''.join(c for c in s if c.isprintable()).strip()
+            if not s_clean: continue
             
+            # Find the first alphabetic character
+            first_alpha = next((c for c in s_clean if c.isalpha()), None)
+            
+            # Reject mid-clause fragments: if the first letter is lowercase, or it starts with punctuation
+            if (first_alpha and first_alpha.islower()) or s_clean[0] in ",;:)}]":
+                continue
+            
+            # Reject very short or excessively long sentences
+            words = s_clean.split()
+            if len(words) < 8 or len(words) > 60:
+                continue
+                
+            s_lower = s_clean.lower()
+            
+            # Penalize sentences that are just other questions
+            if s_clean.endswith("?") and (s_lower.startswith("what") or s_lower.startswith("how")):
+                continue
+                
             # Require the core concept to be present
-            if concept and concept not in p_lower:
+            if concept and concept not in s_lower:
                 continue
+                
+            score = sum(1 for kw in keywords if kw in s_lower)
             
-            # Boost score if paragraph starts with definition patterns
-            if p_lower.startswith(concept + " is") or p_lower.startswith(concept + " are"):
-                score += 5
-            elif " is a " in p_lower[:50] or " is an " in p_lower[:50] or " are " in p_lower[:50]:
-                score += 2
+            # Boost score heavily for explicit definitional structures
+            if s_lower.startswith(concept + " is ") or s_lower.startswith("an " + concept + " is ") or s_lower.startswith("a " + concept + " is "):
+                score += 10
+            elif " is a " in s_lower or " is an " in s_lower or " are " in s_lower:
+                score += 3
                 
             if score > best_score:
                 best_score = score
-                best_p = p_clean
+                best_idx = i
                 
-        if best_p and best_score >= max(1, len(keywords) // 2):
-            confidence = "high" if best_score >= 5 else "medium"
-            return best_p[:500] + ("..." if len(best_p) > 500 else ""), confidence
+        if best_idx != -1 and best_score >= 3:
+            # We found a good starting sentence. Let's try to grab up to 2 sentences for completeness.
+            extracted_sentences = [sentences[best_idx].strip()]
+            if best_idx + 1 < len(sentences):
+                next_s = sentences[best_idx + 1].strip()
+                if next_s and not next_s[0].islower() and len(next_s.split()) >= 5 and len(next_s.split()) <= 40:
+                    extracted_sentences.append(next_s)
+                    
+            final_text = " ".join(extracted_sentences)
+            # Ensure it ends with punctuation
+            if final_text[-1] not in ".!?":
+                final_text += "."
+                
+            confidence = "high" if best_score >= 10 else "medium"
+            return final_text, confidence
             
         return snippet, "low"
 
