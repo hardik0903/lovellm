@@ -3,6 +3,7 @@ from typing import List, Dict, Any
 import chromadb
 from sentence_transformers import SentenceTransformer
 from logger import logger
+import diskcache
 
 class VectorStore:
     def __init__(self, persist_dir: str = "./data/chroma"):
@@ -12,6 +13,7 @@ class VectorStore:
         logger.info("Loading sentence transformer model for dense embeddings...")
         self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
         logger.info("Dense embedding model loaded.")
+        self.parent_cache = diskcache.Cache(os.path.join(persist_dir, "parents_cache"))
 
     def add_chunks(self, chunks: List[Dict[str, Any]]):
         if not chunks:
@@ -24,7 +26,9 @@ class VectorStore:
         # Serialize metadata to ensure ChromaDB compatibility (no dicts inside dicts)
         metadatas = []
         for chunk in chunks:
-            meta = {k: str(v) if not isinstance(v, (int, float, str, bool)) else v for k, v in chunk.items() if k != "text"}
+            if "parent_id" in chunk and "parent_text" in chunk:
+                self.parent_cache[chunk["parent_id"]] = chunk["parent_text"]
+            meta = {k: str(v) if not isinstance(v, (int, float, str, bool)) else v for k, v in chunk.items() if k not in ["text", "parent_text"]}
             metadatas.append(meta)
 
         embeddings = self.embedding_model.encode(texts).tolist()
@@ -56,11 +60,17 @@ class VectorStore:
             raw_distance = results["distances"][0][i]
             score = 1.0 / (1.0 + raw_distance)
             
+            meta_with_parent = dict(results["metadatas"][0][i])
+            if "parent_id" in meta_with_parent:
+                parent_text = self.parent_cache.get(meta_with_parent["parent_id"])
+                if parent_text:
+                    meta_with_parent["parent_text"] = parent_text
+
             output.append({
                 "chunk_id": results["ids"][0][i],
                 "text": results["documents"][0][i],
                 "score": score,
-                "metadata": results["metadatas"][0][i]
+                "metadata": meta_with_parent
             })
             
         return output

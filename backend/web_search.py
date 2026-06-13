@@ -3,6 +3,7 @@ import warnings
 from ddgs import DDGS
 import wikipedia
 from logger import logger
+import asyncio
 
 wikipedia.set_user_agent("lovellm_assistant/1.0 (test@example.com)")
 
@@ -10,7 +11,7 @@ class WebSearcher:
     def __init__(self):
         pass
 
-    def search(self, query: str, max_results: int = 3) -> List[Dict[str, Any]]:
+    async def search(self, query: str, max_results: int = 3) -> List[Dict[str, Any]]:
         """
         Searches the web using DuckDuckGo and returns top results.
         Returns a list of dicts with 'title', 'url', and 'snippet'.
@@ -20,23 +21,31 @@ class WebSearcher:
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                with DDGS() as ddgs:
-                    for r in ddgs.text(query, max_results=max_results):
-                        results.append({
-                            "title": r.get("title", ""),
-                            "url": r.get("href", ""),
-                            "snippet": r.get("body", "")
-                        })
+                def _do_ddgs():
+                    with DDGS() as ddgs:
+                        return list(ddgs.text(query, max_results=max_results))
+                raw_results = await asyncio.to_thread(_do_ddgs)
+                for r in raw_results:
+                    results.append({
+                        "title": r.get("title", ""),
+                        "url": r.get("href", ""),
+                        "snippet": r.get("body", "")
+                    })
         except Exception as e:
             logger.error(f"Error during DuckDuckGo web search: {e}")
             
         if not results:
             logger.info("DuckDuckGo returned 0 results. Falling back to Wikipedia API.")
             try:
-                wiki_results = wikipedia.search(query, results=max_results)
+                def _do_wiki_search():
+                    return wikipedia.search(query, results=max_results)
+                wiki_results = await asyncio.to_thread(_do_wiki_search)
+                
                 for title in wiki_results:
                     try:
-                        page = wikipedia.page(title, auto_suggest=False)
+                        def _do_wiki_page(t=title):
+                            return wikipedia.page(t, auto_suggest=False)
+                        page = await asyncio.to_thread(_do_wiki_page)
                         results.append({
                             "title": page.title,
                             "url": page.url,

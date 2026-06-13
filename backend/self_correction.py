@@ -33,10 +33,13 @@ class MultiPassRetriever:
             memory.add_query(current_query)
             
             # 1. Search
-            results = self.searcher.search(current_query, max_results=7) # Fetch more to allow filtering
+            results = await self.searcher.search(current_query, max_results=7) # Fetch more to allow filtering
             
-            # Filter out already rejected sources
-            valid_results = [r for r in results if not memory.is_source_rejected(r["url"])]
+            # Filter out already rejected or accepted sources
+            valid_results = [
+                r for r in results 
+                if not memory.is_source_rejected(r["url"]) and not any(s["url"] == r["url"] for s in memory.get_accepted_sources())
+            ]
             
             # 2. Score Evidence
             ranked_results = self.ranker.filter_and_rank(query_plan, valid_results, threshold=30)

@@ -4,10 +4,14 @@ from logger import logger
 
 class Reranker:
     def __init__(self):
-        logger.info("Loading cross-encoder model for reranking...")
-        # Using a compact cross-encoder suitable for retrieval QA
-        self.model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-        logger.info("Cross-encoder model loaded.")
+        # We delay loading to avoid blocking startup
+        self.model = None
+
+    def _load_model(self):
+        if self.model is None:
+            logger.info("Loading cross-encoder model for reranking...")
+            self.model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+            logger.info("Cross-encoder model loaded.")
 
     def should_rerank(self, query: str, candidates: List[Dict[str, Any]]) -> bool:
         """
@@ -46,6 +50,7 @@ class Reranker:
         pairs = [[query, doc["text"]] for doc in candidates]
         
         # Predict scores
+        self._load_model()
         scores = self.model.predict(pairs)
         
         # Add new scores and sort

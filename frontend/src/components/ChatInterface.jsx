@@ -1,6 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, FileText, AlertTriangle, Globe, Sparkles, Code, Cpu } from 'lucide-react';
 import Markdown from 'markdown-to-jsx';
+import ComparisonTable from './display/ComparisonTable';
+import ProsConsTable from './display/ProsConsTable';
+import StepList from './display/StepList';
+import TimelineTable from './display/TimelineTable';
+import TroubleshootTable from './display/TroubleshootTable';
+import RecommendCard from './display/RecommendCard';
+import StatsTable from './display/StatsTable';
+import SummaryBlock from './display/SummaryBlock';
 
 export default function ChatInterface({ activeMode }) {
   const [messages, setMessages] = useState([]);
@@ -46,10 +54,10 @@ export default function ChatInterface({ activeMode }) {
     // For now, the backend router handles it automatically based on query.
 
     try {
-      const response = await fetch('http://localhost:8000/chat', {
+      const response = await fetch('/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: queryText })
+        body: JSON.stringify({ query: queryText, mode: activeMode })
       });
 
       if (!response.ok) throw new Error('Network response was not ok');
@@ -58,15 +66,18 @@ export default function ChatInterface({ activeMode }) {
       const decoder = new TextDecoder('utf-8');
       let done = false;
       let streamedText = "";
+      let sseBuffer = "";
+      let currentEvent = null;
 
       while (!done) {
         const { value, done: readerDone } = await reader.read();
         done = readerDone;
         if (value) {
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
+          sseBuffer += decoder.decode(value, { stream: true });
+          const lines = sseBuffer.split('\n');
           
-          let currentEvent = null;
+          // Keep the last incomplete line in the buffer
+          sseBuffer = lines.pop() || "";
           
           for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
@@ -91,7 +102,8 @@ export default function ChatInterface({ activeMode }) {
                         sources: data.sources || [],
                         mode: data.mode,
                         confidence: data.confidence,
-                        needsClarification: data.needs_clarification
+                        needsClarification: data.needs_clarification,
+                        display: data.display || null
                       } : m
                     ));
                   }
@@ -109,6 +121,28 @@ export default function ChatInterface({ activeMode }) {
       ));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const renderDisplay = (msg) => {
+    if (!msg.content && !msg.display) {
+      return <span className="streaming-cursor"></span>;
+    }
+    
+    if (!msg.display) {
+      return <Markdown options={{ forceBlock: true }}>{msg.content}</Markdown>;
+    }
+
+    switch (msg.display.type) {
+      case "comparison_table": return <ComparisonTable data={msg.display} content={msg.content} />;
+      case "pros_cons_table":  return <ProsConsTable data={msg.display} content={msg.content} />;
+      case "steps":            return <StepList data={msg.display} content={msg.content} />;
+      case "timeline":         return <TimelineTable data={msg.display} content={msg.content} />;
+      case "troubleshoot":     return <TroubleshootTable data={msg.display} content={msg.content} />;
+      case "recommend":        return <RecommendCard data={msg.display} content={msg.content} />;
+      case "stats":            return <StatsTable data={msg.display} content={msg.content} />;
+      case "summary":          return <SummaryBlock data={msg.display} content={msg.content} />;
+      default:                 return <Markdown options={{ forceBlock: true }}>{msg.content}</Markdown>;
     }
   };
 
@@ -189,7 +223,7 @@ export default function ChatInterface({ activeMode }) {
       {messages.length === 0 ? (
         <div className="welcome-state">
           <div className="welcome-logo">
-            <Sparkles size={32} />
+            <img src="/logo.png" alt="LoveLLM Logo" />
           </div>
           <h2>How can I help you today?</h2>
           <p>I can search the web, analyze uploaded documents, or synthesize information from multiple sources.</p>
@@ -225,11 +259,7 @@ export default function ChatInterface({ activeMode }) {
                   </div>
                   
                   <div className="message-bubble assistant-content">
-                    {msg.content ? (
-                      <Markdown options={{ forceBlock: true }}>{msg.content}</Markdown>
-                    ) : (
-                      <span className="streaming-cursor"></span>
-                    )}
+                    {renderDisplay(msg)}
                   </div>
 
                   {msg.sources && msg.sources.length > 0 && (

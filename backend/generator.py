@@ -9,11 +9,13 @@ from logger import logger
 
 class AnswerGenerator:
     def __init__(self):
-        # Requires GROQ_API_KEY environment variable
-        self.client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY", "dummy_key"))
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise ValueError("GROQ_API_KEY environment variable is not set")
+        self.client = AsyncGroq(api_key=api_key)
         self.model = "llama-3.1-8b-instant"
 
-    def _build_prompt(self, query: str, context_chunks: List[Dict[str, Any]], source_map: Dict[str, Any] = None, answer_plan: Dict[str, Any] = None) -> str:
+    def _build_prompt(self, query: str, context_chunks: List[Dict[str, Any]], source_map: Dict[str, Any] = None, answer_plan: Dict[str, Any] = None, display_injection: str = "") -> str:
         context_str = ""
         for i, chunk in enumerate(context_chunks):
             doc_id = chunk.get("metadata", {}).get("document_id", "unknown")
@@ -46,7 +48,11 @@ Rules:
 3. Keep the answer concise and accurate.
 4. When possible, cite the sources used.
 5. Do not hallucinate names, dates, numbers, or clauses.{plan_str}
-6. Return a valid JSON object exactly matching this schema:
+6. Return a valid JSON object exactly matching the Base Schema below.
+
+{display_injection}
+
+Base Schema:
 {{
   "answer": "your concise answer string",
   "sources": [
@@ -57,17 +63,15 @@ Rules:
     }}
   ],
   "confidence": "high|medium|low",
-  "needs_clarification": false
+  "needs_clarification": false,
+  "display": "Replace with the display JSON object if requested above, otherwise null"
 }}
-Context:
-{context_str}
 
-Question:
-{query}
-"""
+Context:
+{context_str}"""
         return prompt
 
-    async def generate_stream(self, query: str, context_chunks: List[Dict[str, Any]], mode: str = "doc_rag", source_map: Dict[str, Any] = None, answer_plan: Dict[str, Any] = None) -> AsyncGenerator[Dict[str, Any], None]:
+    async def generate_stream(self, query: str, context_chunks: List[Dict[str, Any]], mode: str = "doc_rag", source_map: Dict[str, Any] = None, answer_plan: Dict[str, Any] = None, display_injection: str = "") -> AsyncGenerator[Dict[str, Any], None]:
         if not context_chunks:
             # Fallback for no context
             fallback = {
@@ -83,14 +87,15 @@ Question:
             }
             return
 
-        prompt = self._build_prompt(query, context_chunks, source_map, answer_plan)
+        prompt = self._build_prompt(query, context_chunks, source_map, answer_plan, display_injection)
         
         logger.info(f"Calling Groq LLM with {len(context_chunks)} chunks for context. Mode: {mode}")
         
         try:
             stream = await self.client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": prompt}
+                    {"role": "system", "content": prompt},
+                    {"role": "user", "content": query}
                 ],
                 model=self.model,
                 response_format={"type": "json_object"},

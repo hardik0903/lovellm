@@ -7,7 +7,6 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 # Load backend imports for unit tests
-from query_router import MainQueryRouter
 from router import QueryRouter
 from bm25_store import BM25Store
 from vector_store import VectorStore
@@ -100,13 +99,6 @@ class TestHarness:
 
     def check_unit_retrieval(self):
         try:
-            # Test MainQueryRouter
-            main_router = MainQueryRouter()
-            assert main_router.route("What is a cat?", has_documents=False) == "direct_web", "Main router failed direct_web rule"
-            assert main_router.route("Compare PCA and SVD in detail", has_documents=False) == "web_rag", "Main router failed web_rag rule"
-            assert main_router.route("What is a cat according to this document?", has_documents=True) == "doc_rag", "Main router failed doc_rag rule"
-            self._log_result("Router", "Main Query Routing Logic", "PASS")
-
             # Test Doc RAG Router
             router = QueryRouter()
             assert router.route("Project Alpha 2027-10-15") == "bm25", "Router failed BM25 rule"

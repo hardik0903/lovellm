@@ -4,10 +4,14 @@ import re
 from typing import Dict, Any
 from groq import AsyncGroq
 from logger import logger
+from display_agent import DisplayFormattingAgent
 
 class QueryUnderstandingEngine:
     def __init__(self):
-        self.client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY", "dummy_key"))
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise ValueError("GROQ_API_KEY environment variable is not set")
+        self.client = AsyncGroq(api_key=api_key)
         self.model = "llama-3.1-8b-instant"
 
     def _normalize_query(self, query: str) -> str:
@@ -59,7 +63,7 @@ class QueryUnderstandingEngine:
         Deep planner for complex queries.
         """
         logger.info("Using LLM Planner for Query Understanding.")
-        prompt = f"""You are a query analysis engine. Your job is to decompose the user's query into a structured plan for search and answer generation.
+        system_prompt = f"""You are a query analysis engine. Your job is to decompose the user's query into a structured plan for search and answer generation.
 
 Rules:
 1. Classify the intent: 'comparison', 'research', 'multi_hop', 'troubleshooting', 'ambiguous'.
@@ -72,13 +76,13 @@ Rules:
     "concepts": ["string"],
     "required_sections": ["string"],
     "needs_clarification": boolean
-}}
-
-Query: {original_query}
-"""
+}}"""
         try:
             response = await self.client.chat.completions.create(
-                messages=[{"role": "system", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": original_query}
+                ],
                 model=self.model,
                 response_format={"type": "json_object"},
                 temperature=0.0
@@ -102,11 +106,10 @@ Query: {original_query}
             # Fallback to simple deterministic if LLM fails
             return self._deterministic_understand(original_query, normalized_query)
 
-    async def understand(self, query: str, has_documents: bool = False) -> Dict[str, Any]:
+    async def understand(self, query: str, norm_q: str, has_documents: bool = False) -> Dict[str, Any]:
         """
         Main entry point. Enforces strict escalation framework.
         """
-        norm_q = self._normalize_query(query)
         
         # If user explicitly references a document, or there are docs and it's not a generic web query
         explicit_doc = bool(re.search(r'\b(document|file|text|pdf|upload|this|it)\b', norm_q))

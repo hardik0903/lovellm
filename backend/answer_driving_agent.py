@@ -72,16 +72,17 @@ class AnswerDrivingAgent:
             if s_clean.endswith("?") and (s_lower.startswith("what") or s_lower.startswith("how")):
                 continue
                 
-            # Require the core concept to be present
-            if concept and concept not in s_lower:
+            # Require the core concept to be present (using naive depluralization)
+            concept_stem = concept.rstrip('s').rstrip('es') if concept else ""
+            if concept_stem and concept_stem not in s_lower:
                 continue
                 
             score = sum(1 for kw in keywords if kw in s_lower)
             
-            # Boost score heavily for explicit definitional structures
-            if s_lower.startswith(concept + " is ") or s_lower.startswith("an " + concept + " is ") or s_lower.startswith("a " + concept + " is "):
+            # Boost score heavily for explicit definitional structures anywhere in the sentence
+            if (" is a " in s_lower or " is an " in s_lower) and concept_stem in s_lower:
                 score += 10
-            elif " is a " in s_lower or " is an " in s_lower or " are " in s_lower:
+            elif " are " in s_lower and concept_stem in s_lower:
                 score += 3
                 
             if score > best_score:
@@ -106,7 +107,7 @@ class AnswerDrivingAgent:
     async def answer(self, query: str) -> AsyncGenerator[Dict[str, Any], None]:
         logger.info(f"[AGENT] AnswerDrivingAgent started for: {query}")
         
-        candidates = self.searcher.search(query, max_results=5)
+        candidates = await self.searcher.search(query, max_results=5)
         candidates = self.filter_candidates(candidates)
         
         if not candidates:
@@ -134,7 +135,7 @@ class AnswerDrivingAgent:
             if score >= 10:
                 break
                 
-        if best_answer and highest_score >= 5:
+        if best_answer and highest_score >= 3:
             confidence = "high" if highest_score >= 10 else "medium"
             
             yield {

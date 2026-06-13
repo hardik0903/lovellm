@@ -12,6 +12,7 @@ class ConversationContext:
         self.relationships: List[Dict] = []
         self.active_topic: str = ""
         self.history: List[str] = []
+        self.history_objects: List[Dict[str, Any]] = []
         
     def update_context(self, query_plan: Dict[str, Any]):
         """

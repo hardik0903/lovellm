@@ -64,7 +64,7 @@ class EvidenceRanker:
         
         # Penalties
         # e.g., if looking for eigenvector and hits C++ library without asking for it
-        if "eigenvector" in [c.lower() for c in concepts] and "c++" not in snippet_lower:
+        if "eigenvector" in [c.lower() for c in concepts]:
             if "eigen" in url_lower and "c++" in snippet_lower:
                 score -= 50 # massive penalty
                 

@@ -3,13 +3,18 @@ from typing import Dict, Any, List
 from groq import AsyncGroq
 from logger import logger
 
+import re
+
 class AnswerVerifier:
     """
     Post-generation verification to ensure the answer meets quality standards.
     Uses deterministic checks. For a true production system, you might use a fast LLM pass here.
     """
     def __init__(self):
-        self.client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY", "dummy_key"))
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise ValueError("GROQ_API_KEY environment variable is not set")
+        self.client = AsyncGroq(api_key=api_key)
         self.model = "llama-3.1-8b-instant"
 
     async def verify(self, answer_obj: Dict[str, Any], answer_plan: Dict[str, Any]) -> Dict[str, Any]:
@@ -25,9 +30,27 @@ class AnswerVerifier:
                 missing_sections.append(section)
                 
         # 2. Citation Coverage
-        # Check if the answer text contains brackets like [1] or (Source) if sources are provided
-        has_citations = "[" in answer_text or "(" in answer_text or "source" in answer_text
         sources = answer_obj.get("sources", [])
+        has_citations = False
+        
+        if answer_plan.get("mode") == "direct_web":
+            has_citations = True
+        elif not sources:
+            has_citations = True # No sources to cite
+        else:
+            if re.search(r'\[\d+\]', answer_text):
+                has_citations = True
+            else:
+                for src in sources:
+                    title = src.get("title", "").lower()
+                    url = src.get("url", "").lower()
+                    if title and len(title) > 5 and title in answer_text:
+                        has_citations = True
+                        break
+                    domain = url.replace("https://", "").replace("http://", "").split("/")[0]
+                    if domain and len(domain) > 3 and domain in answer_text:
+                        has_citations = True
+                        break
         
         # 3. Completeness
         # Is the answer long enough given the intent?
@@ -45,7 +68,8 @@ class AnswerVerifier:
                 
         is_relevant = True
         # Simple heuristic: If the answer is extremely short and doesn't mention the core concept, it might be irrelevant.
-        if concept and len(concept) > 3 and concept not in answer_text:
+        concept_stem = concept.rstrip('s').rstrip('es') if concept else ""
+        if concept_stem and len(concept_stem) >= 3 and concept_stem not in answer_text:
             is_relevant = False
             
         verification_result = {
@@ -59,10 +83,12 @@ class AnswerVerifier:
         # If deterministic verification failed, do a tiny LLM pass to double check
         if not verification_result["passed"] and answer_text:
             logger.info("Deterministic verification failed, falling back to LLM verifier pass.")
-            prompt = f"Does the following answer provide a reasonable and relevant response to the query: '{original_query}'? Answer strictly with YES or NO.\n\nAnswer: {answer_text}"
             try:
                 response = await self.client.chat.completions.create(
-                    messages=[{"role": "user", "content": prompt}],
+                    messages=[
+                        {"role": "system", "content": "You are an answer verification assistant. Answer strictly with YES or NO."},
+                        {"role": "user", "content": f"Does the following answer provide a reasonable and relevant response to the query: '{original_query}'?\n\nAnswer: {answer_text}"}
+                    ],
                     model=self.model,
                     temperature=0.0,
                     max_tokens=5

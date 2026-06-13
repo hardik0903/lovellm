@@ -13,7 +13,6 @@ from vector_store import VectorStore
 from bm25_store import BM25Store
 from retriever import HybridRetriever
 from generator import AnswerGenerator
-from query_router import MainQueryRouter
 from pipeline import PipelineOrchestrator
 
 app = FastAPI(title="Document Q&A Service")
@@ -34,11 +33,10 @@ bm25_store = BM25Store(persist_dir="./data/bm25")
 retriever = HybridRetriever(vector_store, bm25_store)
 generator = AnswerGenerator()
 ingestor = DocumentIngestor()
-main_router = MainQueryRouter()
-orchestrator = PipelineOrchestrator(generator, retriever)
 
 class ChatRequest(BaseModel):
     query: str
+    mode: str = "auto"
 
 @app.post("/upload")
 async def upload_document(file: UploadFile = File(...)):
@@ -70,17 +68,25 @@ async def upload_document(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"Error during ingestion: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except OSError as e:
+                logger.error(f"Error removing uploaded file {file_path}: {e}")
 
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):
     query = request.query
+    mode = request.mode
     if not query:
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
         
-    logger.info(f"Received chat query: {query}")
+    logger.info(f"Received chat query: {query} with mode: {mode}")
     
+    orchestrator = PipelineOrchestrator(generator, retriever)
     has_docs = vector_store.collection.count() > 0
-    return EventSourceResponse(orchestrator.execute(query, has_documents=has_docs))
+    return EventSourceResponse(orchestrator.execute(query, mode=mode, has_documents=has_docs))
 
 @app.get("/health")
 def health_check():

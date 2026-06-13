@@ -17,7 +17,7 @@ class QueryRouter:
         is_semantic = any(indicator in query_lower for indicator in semantic_indicators)
         
         # Check for lexical indicators (IDs, numbers, capitalized names, quotes)
-        has_id_or_number = bool(re.search(r'\b[A-Z0-9-]{4,}\b|\d+', query))
+        has_id_or_number = bool(re.search(r'\b(?:[A-Z]{2,}[0-9-][A-Z0-9-]*|[0-9]+[A-Z-][A-Z0-9-]*)\b|\b\d+\b', query))
         has_quotes = '"' in query or "'" in query
         
         # Length check

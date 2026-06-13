@@ -14,6 +14,7 @@ class BM25Store:
         
         self.bm25 = None
         self.documents: List[Dict[str, Any]] = []
+        self.tokenized_corpus = []
         self._load()
 
     def _tokenize(self, text: str) -> List[str]:
@@ -27,6 +28,7 @@ class BM25Store:
                     self.bm25 = pickle.load(f)
                 with open(self.docs_path, 'rb') as f:
                     self.documents = pickle.load(f)
+                self.tokenized_corpus = [self._tokenize(doc["text"]) for doc in self.documents]
                 logger.info(f"Loaded BM25 index with {len(self.documents)} documents.")
             except Exception as e:
                 logger.error(f"Failed to load BM25 index: {e}")
@@ -55,8 +57,9 @@ class BM25Store:
         logger.info(f"Adding {len(new_chunks)} new chunks to BM25 Store.")
         self.documents.extend(new_chunks)
         
-        tokenized_corpus = [self._tokenize(doc["text"]) for doc in self.documents]
-        self.bm25 = BM25Okapi(tokenized_corpus)
+        new_tokenized = [self._tokenize(doc["text"]) for doc in new_chunks]
+        self.tokenized_corpus.extend(new_tokenized)
+        self.bm25 = BM25Okapi(self.tokenized_corpus)
         self._save()
 
     def search(self, query: str, top_k: int = 10) -> List[Dict[str, Any]]:

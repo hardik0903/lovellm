@@ -13,6 +13,12 @@ class WebScraper:
             "User-Agent": "lovellm_assistant/1.0 (test@example.com)",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
         }
+        
+        domain = url.split("//")[-1].split("/")[0]
+        if any(b in domain for b in ["youtube.com", "reddit.com", "twitter.com", "instagram.com", "tiktok.com"]):
+            logger.warning(f"Skipping blocked domain {domain}")
+            return None
+            
         try:
             async with aiohttp.ClientSession(timeout=self.timeout, headers=headers) as session:
                 async with session.get(url) as response:

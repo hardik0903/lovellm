@@ -28,9 +28,8 @@ function App() {
 
       {/* Mobile Topbar */}
       <div className="mobile-topbar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
-          <Bot className="sidebar-icon" size={24} />
-          <span>Unified Assistant</span>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img src="/logo.png" alt="LoveLLM Logo" className="sidebar-logo" style={{ height: '24px', width: 'auto', objectFit: 'contain' }} />
         </div>
         <button className="hamburger-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
           ☰
@@ -39,9 +38,8 @@ function App() {
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <Bot className="sidebar-icon" size={28} />
-          <span>Assistant</span>
+        <div className="sidebar-header" style={{ justifyContent: 'center', paddingBottom: '1rem' }}>
+          <img src="/logo.png" alt="LoveLLM Logo" className="sidebar-logo" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
         </div>
 
         <div className="sidebar-section">
