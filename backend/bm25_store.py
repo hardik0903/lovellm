@@ -45,8 +45,15 @@ class BM25Store:
         if not chunks:
             return
             
-        logger.info(f"Adding {len(chunks)} chunks to BM25 Store.")
-        self.documents.extend(chunks)
+        existing_ids = {doc["chunk_id"] for doc in self.documents}
+        new_chunks = [c for c in chunks if c["chunk_id"] not in existing_ids]
+        
+        if not new_chunks:
+            logger.info("All chunks already exist in BM25 Store. Skipping.")
+            return
+            
+        logger.info(f"Adding {len(new_chunks)} new chunks to BM25 Store.")
+        self.documents.extend(new_chunks)
         
         tokenized_corpus = [self._tokenize(doc["text"]) for doc in self.documents]
         self.bm25 = BM25Okapi(tokenized_corpus)

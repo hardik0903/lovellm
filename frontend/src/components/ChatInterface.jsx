@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, FileText, AlertTriangle } from 'lucide-react';
+import { Send, Bot, User, FileText, AlertTriangle, Globe, Sparkles, Code, Cpu } from 'lucide-react';
 import Markdown from 'markdown-to-jsx';
 
-export default function ChatInterface() {
+export default function ChatInterface({ activeMode }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -16,29 +17,42 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages]);
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
+  const setPrompt = (text) => {
+    setInput(text);
+    if (inputRef.current) inputRef.current.focus();
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    const userMessage = { role: 'user', content: input };
+    const queryText = input.trim();
+    const userMessage = { role: 'user', content: queryText };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
     const assistantId = Date.now().toString();
-    // Insert an empty assistant message to stream into
-    setMessages(prev => [...prev, { role: 'assistant', id: assistantId, content: '', citations: [], confidence: null, needsClarification: false }]);
+    setMessages(prev => [...prev, { role: 'assistant', id: assistantId, content: '', sources: [], mode: '', confidence: null, needsClarification: false }]);
+
+    // For demonstration of UI logic, we could pass the activeMode flag to the backend if supported.
+    // For now, the backend router handles it automatically based on query.
 
     try {
       const response = await fetch('http://localhost:8000/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: userMessage.content })
+        body: JSON.stringify({ query: queryText })
       });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      if (!response.ok) throw new Error('Network response was not ok');
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
@@ -74,14 +88,15 @@ export default function ChatInterface() {
                       m.id === assistantId ? { 
                         ...m, 
                         content: data.answer,
-                        citations: data.citations || [],
+                        sources: data.sources || [],
+                        mode: data.mode,
                         confidence: data.confidence,
                         needsClarification: data.needs_clarification
                       } : m
                     ));
                   }
                 } catch (e) {
-                  console.error('Failed to parse SSE data', e, dataStr);
+                  // ignore parse error for incomplete chunks
                 }
               }
             }
@@ -89,7 +104,6 @@ export default function ChatInterface() {
         }
       }
     } catch (error) {
-      console.error('Chat error:', error);
       setMessages(prev => prev.map(m => 
         m.id === assistantId ? { ...m, content: 'Error communicating with the server.' } : m
       ));
@@ -98,78 +112,127 @@ export default function ChatInterface() {
     }
   };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div className="chat-messages">
-        {messages.length === 0 && (
-          <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: 'auto', marginBottom: 'auto' }}>
-            <Bot size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-            <h2>Document Q&A Service</h2>
-            <p>Upload a document and ask questions to get started.</p>
-          </div>
-        )}
-        
-        {messages.map((msg, idx) => (
-          <div key={msg.id || idx} className={`message-bubble message-${msg.role}`}>
-            {msg.role === 'assistant' ? (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', gap: '0.5rem', color: 'var(--text-secondary)' }}>
-                  <Bot size={16} />
-                  <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Assistant</span>
-                  {msg.confidence && (
-                    <span className={`confidence-badge confidence-${msg.confidence}`}>
-                      {msg.confidence} Confidence
-                    </span>
-                  )}
-                  {msg.needsClarification && (
-                    <span className="confidence-badge confidence-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                      <AlertTriangle size={12} /> Needs Clarification
-                    </span>
-                  )}
-                </div>
-                
-                <Markdown options={{ forceBlock: true }}>{msg.content || '...'}</Markdown>
-                
-                {msg.citations && msg.citations.length > 0 && (
-                  <div className="citations-container">
-                    {msg.citations.map((cite, i) => (
-                      <span key={i} className="citation-badge" title={`Chunk: ${cite.chunk_id}`}>
-                        <FileText size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
-                        {cite.document_id} (Page {cite.page_start})
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', gap: '0.5rem', color: 'rgba(255,255,255,0.8)' }}>
-                  <User size={16} />
-                  <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>You</span>
-                </div>
-                <p>{msg.content}</p>
-              </>
-            )}
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
+  const renderModeBadge = (mode) => {
+    if (!mode) return null;
+    let icon = <Bot size={12} />;
+    let label = mode;
+    
+    if (mode === 'doc_rag') {
+      icon = <FileText size={12} />;
+      label = 'Document QA';
+    } else if (mode === 'direct_web') {
+      icon = <Globe size={12} />;
+      label = 'Direct Web';
+    } else if (mode === 'web_rag') {
+      icon = <Sparkles size={12} />;
+      label = 'Web Synthesized';
+    }
 
-      <div className="chat-input-container">
-        <form onSubmit={handleSubmit} className="chat-input-form">
-          <input
-            type="text"
-            className="chat-input"
+    return (
+      <div className="mode-badge">
+        {icon} {label}
+      </div>
+    );
+  };
+
+  return (
+    <main className="main-content">
+      {messages.length === 0 ? (
+        <div className="welcome-state">
+          <div className="welcome-logo">
+            <Sparkles size={32} />
+          </div>
+          <h2>How can I help you today?</h2>
+          <p>I can search the web, analyze uploaded documents, or synthesize information from multiple sources.</p>
+          
+          <div className="example-chips">
+            <button className="chip" onClick={() => setPrompt("What is the capital of France?")}>
+              <Globe size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} />
+              Quick fact lookup
+            </button>
+            <button className="chip" onClick={() => setPrompt("Compare React and Vue in depth")}>
+              <Code size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} />
+              Compare technologies
+            </button>
+            <button className="chip" onClick={() => setPrompt("According to the uploaded document, what is the main goal?")}>
+              <FileText size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} />
+              Query documents
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="chat-messages">
+          {messages.map((msg, idx) => (
+            <div key={msg.id || idx} className={`message-wrapper ${msg.role}`}>
+              {msg.role === 'assistant' ? (
+                <div style={{ width: '100%' }}>
+                  <div className="mode-badge-container">
+                    {renderModeBadge(msg.mode)}
+                    {msg.confidence && (
+                      <span className={`confidence-badge confidence-${msg.confidence}`}>
+                        {msg.confidence} Confidence
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="message-bubble assistant-content">
+                    {msg.content ? (
+                      <Markdown options={{ forceBlock: true }}>{msg.content}</Markdown>
+                    ) : (
+                      <span className="streaming-cursor"></span>
+                    )}
+                  </div>
+
+                  {msg.sources && msg.sources.length > 0 && (
+                    <div className="sources-grid">
+                      {msg.sources.map((src, i) => (
+                        <a key={i} href={src.url !== src.title ? src.url : '#'} target="_blank" rel="noreferrer" className="source-card">
+                          <div className="source-title">{src.title}</div>
+                          <div className="source-meta">
+                            <span className="source-type">
+                              {src.type === 'web' ? <Globe size={10} /> : <FileText size={10} />}
+                              {src.type}
+                            </span>
+                            {src.type === 'document' && <span>Page 1</span>}
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="message-bubble">
+                  {msg.content}
+                </div>
+              )}
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+      )}
+
+      <div className="composer-wrapper">
+        <div className="composer-route-hint">
+          {activeMode === 'auto' && <><Bot size={12}/> Auto-routing based on query</>}
+          {activeMode === 'doc' && <><FileText size={12}/> Forcing Document Mode</>}
+          {activeMode === 'web' && <><Globe size={12}/> Forcing Web Search Mode</>}
+        </div>
+        <form onSubmit={handleSubmit} className="composer-inner">
+          <textarea
+            ref={inputRef}
+            className="composer-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask a question about the documents..."
+            onKeyDown={handleKeyDown}
+            placeholder={activeMode === 'doc' ? "Ask about the uploaded documents..." : "Message Assistant..."}
             disabled={isLoading}
+            rows={1}
           />
-          <button type="submit" className="send-button" disabled={!input.trim() || isLoading}>
-            <Send size={20} />
+          <button type="submit" className="composer-send-btn" disabled={!input.trim() || isLoading}>
+            <Send size={18} />
           </button>
         </form>
       </div>
-    </div>
+    </main>
   );
 }

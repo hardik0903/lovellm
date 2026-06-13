@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "lucide-react": "^1.18.0",
+    "markdown-to-jsx": "^9.8.2",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },

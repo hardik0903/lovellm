@@ -7,6 +7,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 # Load backend imports for unit tests
+from query_router import MainQueryRouter
 from router import QueryRouter
 from bm25_store import BM25Store
 from vector_store import VectorStore
@@ -99,10 +100,18 @@ class TestHarness:
 
     def check_unit_retrieval(self):
         try:
+            # Test MainQueryRouter
+            main_router = MainQueryRouter()
+            assert main_router.route("What is a cat?", has_documents=False) == "direct_web", "Main router failed direct_web rule"
+            assert main_router.route("Compare PCA and SVD in detail", has_documents=False) == "web_rag", "Main router failed web_rag rule"
+            assert main_router.route("What is a cat according to this document?", has_documents=True) == "doc_rag", "Main router failed doc_rag rule"
+            self._log_result("Router", "Main Query Routing Logic", "PASS")
+
+            # Test Doc RAG Router
             router = QueryRouter()
             assert router.route("Project Alpha 2027-10-15") == "bm25", "Router failed BM25 rule"
             assert router.route("Explain how it differs from evolutionary algorithms") == "dense", "Router failed dense rule"
-            self._log_result("Router", "Query Routing Logic", "PASS")
+            self._log_result("Router", "Doc RAG Routing Logic", "PASS")
             
             # Since we hit /upload, the local DBs should have data
             bm25 = BM25Store(persist_dir="./data/bm25")
@@ -129,7 +138,7 @@ class TestHarness:
 
     async def check_generation_and_streaming(self):
         try:
-            query = "Who is the project manager for Alpha?"
+            query = "According to this document, who is the project manager for Alpha?"
             async with httpx.AsyncClient() as client:
                 async with client.stream("POST", f"{BASE_URL}/chat", json={"query": query}) as response:
                     response.raise_for_status()
@@ -144,7 +153,7 @@ class TestHarness:
                             if data_str:
                                 try:
                                     parsed = json.loads(data_str)
-                                    if "answer" in parsed and "citations" in parsed:
+                                    if "answer" in parsed and "sources" in parsed and "mode" in parsed:
                                         final_json = parsed
                                 except:
                                     pass
@@ -152,7 +161,8 @@ class TestHarness:
                     assert has_delta, "SSE did not emit delta events"
                     assert final_json is not None, "SSE did not emit final JSON"
                     assert "Sarah Jenkins" in final_json["answer"], "LLM hallucinated or failed to answer correctly"
-                    assert len(final_json["citations"]) > 0, "Citations were empty"
+                    assert len(final_json["sources"]) > 0, "Sources were empty"
+                    assert final_json["mode"] == "doc_rag", f"Incorrect mode: {final_json['mode']}"
                     
             self._log_result("Streaming", "SSE Delta & Final JSON", "PASS", doc_id="query_1")
             
@@ -171,16 +181,64 @@ class TestHarness:
                             if data_str:
                                 try:
                                     parsed = json.loads(data_str)
-                                    if "answer" in parsed and "citations" in parsed:
+                                    if "answer" in parsed and "sources" in parsed:
                                         final_json = parsed
                                 except:
                                     pass
                                     
                     assert final_json is not None
-                    assert "I could not find support" in final_json["answer"] or final_json["confidence"] == "low"
+                    ans_lower = final_json["answer"].lower()
+                    assert any(phrase in ans_lower for phrase in ["no information", "could not find support", "not support", "unable to answer", "cannot answer"]) or final_json["confidence"] == "low"
             self._log_result("Generation", "Fallback Behavior", "PASS")
         except Exception as e:
             self._log_result("Generation", "Fallback Behavior", "FAIL", e)
+
+    async def check_web_modes(self):
+        try:
+            # direct_web test
+            async with httpx.AsyncClient() as client:
+                async with client.stream("POST", f"{BASE_URL}/chat", json={"query": "What is the capital of France?"}) as response:
+                    final_json = None
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: "):
+                            data_str = line[6:].strip()
+                            if data_str:
+                                try:
+                                    parsed = json.loads(data_str)
+                                    if "answer" in parsed and "mode" in parsed:
+                                        final_json = parsed
+                                except: pass
+                    assert final_json is not None
+                    assert final_json["mode"] == "direct_web", f"Expected direct_web, got {final_json['mode']}"
+                    if not final_json["sources"]:
+                        assert "I could not find any web results" in final_json["answer"]
+                    else:
+                        assert final_json["sources"][0]["type"] == "web"
+            self._log_result("Web Search", "Direct Web Routing & Extraction", "PASS")
+            
+            # web_rag test
+            async with httpx.AsyncClient() as client:
+                async with client.stream("POST", f"{BASE_URL}/chat", json={"query": "Compare React and Vue in depth"}) as response:
+                    final_json = None
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: "):
+                            data_str = line[6:].strip()
+                            if data_str:
+                                try:
+                                    parsed = json.loads(data_str)
+                                    if "answer" in parsed and "mode" in parsed:
+                                        final_json = parsed
+                                except: pass
+                    assert final_json is not None
+                    assert final_json["mode"] == "web_rag", f"Expected web_rag, got {final_json['mode']}"
+                    if not final_json["sources"]:
+                        assert "could not find any web results" in final_json["answer"].lower() or "could not extract" in final_json["answer"].lower()
+                    else:
+                        assert final_json["sources"][0]["type"] == "web"
+            self._log_result("Web Search", "Web RAG Synthesis", "PASS")
+            
+        except Exception as e:
+            self._log_result("Web Search", "Web Modes E2E", "FAIL", e)
 
     async def run_all(self):
         print("=== Starting Test Harness ===")
@@ -190,6 +248,7 @@ class TestHarness:
         self.check_unit_retrieval()
         await self.check_generation_and_streaming()
         await self.check_fallback()
+        await self.check_web_modes()
         
         print("\n=== Human Readable Report ===")
         print(f"Total Passed: {self.results['passed']}")

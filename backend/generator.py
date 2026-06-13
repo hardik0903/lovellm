@@ -13,36 +13,49 @@ class AnswerGenerator:
         self.client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY", "dummy_key"))
         self.model = "llama-3.1-8b-instant"
 
-    def _build_prompt(self, query: str, context_chunks: List[Dict[str, Any]]) -> str:
+    def _build_prompt(self, query: str, context_chunks: List[Dict[str, Any]], source_map: Dict[str, Any] = None) -> str:
         context_str = ""
         for i, chunk in enumerate(context_chunks):
             doc_id = chunk.get("metadata", {}).get("document_id", "unknown")
             page = chunk.get("metadata", {}).get("page_start", "?")
+            source_file = chunk.get("metadata", {}).get("source_file", "unknown")
+            is_web = chunk.get("metadata", {}).get("is_web", False)
+            
+            # If we have a source map (for web RAG), inject the real title/url
+            if source_map and doc_id in source_map:
+                title = source_map[doc_id]["title"]
+                url = source_map[doc_id]["url"]
+            else:
+                title = source_file
+                url = source_file
+
             chunk_id = chunk.get("chunk_id", f"chunk_{i}")
             text = chunk.get("context_text", chunk.get("text", ""))
-            context_str += f"\n--- [Source: {doc_id}, Page: {page}, Chunk: {chunk_id}] ---\n{text}\n"
+            
+            src_type = "web" if is_web else "document"
+            context_str += f"\n--- [Source ID: {doc_id}, Title: {title}, URL: {url}, Type: {src_type}] ---\n{text}\n"
 
-        prompt = f"""You are a retrieval-grounded document answering system.
+        prompt = f"""You are a retrieval-grounded answering system.
 
 Rules:
 1. Answer only using the provided context.
 2. Do not use outside knowledge unless the context explicitly supports it.
 3. Keep the answer concise and accurate.
-4. When possible, cite the page number and chunk reference for each claim.
+4. When possible, cite the sources used.
 5. Do not hallucinate names, dates, numbers, or clauses.
 6. Return a valid JSON object exactly matching this schema:
-{
+{{
   "answer": "your concise answer string",
-  "citations": [
-    {
-      "document_id": "...",
-      "page_start": 1,
-      "chunk_id": "..."
-    }
+  "sources": [
+    {{
+      "title": "title of the source",
+      "url": "url or filename of the source",
+      "type": "web | document"
+    }}
   ],
   "confidence": "high|medium|low",
   "needs_clarification": false
-}
+}}
 Context:
 {context_str}
 
@@ -51,21 +64,25 @@ Question:
 """
         return prompt
 
-    async def generate_stream(self, query: str, context_chunks: List[Dict[str, Any]]) -> AsyncGenerator[str, None]:
+    async def generate_stream(self, query: str, context_chunks: List[Dict[str, Any]], mode: str = "doc_rag", source_map: Dict[str, Any] = None) -> AsyncGenerator[Dict[str, Any], None]:
         if not context_chunks:
             # Fallback for no context
             fallback = {
+                "mode": mode,
                 "answer": "I could not find support for that in the retrieved documents.",
-                "citations": [],
+                "sources": [],
                 "confidence": "low",
                 "needs_clarification": False
             }
-            yield f"event: final\ndata: {json.dumps(fallback)}\n\n"
+            yield {
+                "event": "final",
+                "data": json.dumps(fallback)
+            }
             return
 
-        prompt = self._build_prompt(query, context_chunks)
+        prompt = self._build_prompt(query, context_chunks, source_map)
         
-        logger.info(f"Calling Groq LLM with {len(context_chunks)} chunks for context.")
+        logger.info(f"Calling Groq LLM with {len(context_chunks)} chunks for context. Mode: {mode}")
         
         try:
             stream = await self.client.chat.completions.create(
@@ -108,7 +125,10 @@ Question:
                                 text_so_far = text_so_far[:end_idx]
                                 in_answer = False
                             if text_so_far:
-                                yield f"event: delta\ndata: {json.dumps({'text': text_so_far})}\n\n"
+                                yield {
+                                    "event": "delta",
+                                    "data": json.dumps({'text': text_so_far})
+                                }
                 elif in_answer:
                     # Check if we hit the closing quote of the answer field
                     # This is a naive check (assumes no escaped quotes in content, or handles them simply)
@@ -117,33 +137,48 @@ Question:
                         # Might be closing quote
                         parts = content.split('"', 1)
                         if parts[0]:
-                            yield f"event: delta\ndata: {json.dumps({'text': parts[0]})}\n\n"
+                            yield {
+                                "event": "delta",
+                                "data": json.dumps({'text': parts[0]})
+                            }
                         in_answer = False
                     else:
                         # Just yield the delta text
-                        yield f"event: delta\ndata: {json.dumps({'text': content})}\n\n"
+                        yield {
+                            "event": "delta",
+                            "data": json.dumps({'text': content})
+                        }
             
             # Now parse the full buffer as JSON to send the final event
             try:
                 final_json = json.loads(buffer)
+                final_json["mode"] = mode
             except json.JSONDecodeError:
                 logger.error("Failed to parse Groq output as JSON.")
                 # Attempt to recover or use fallback
                 final_json = {
+                    "mode": mode,
                     "answer": "Error: Failed to generate valid structured output.",
-                    "citations": [],
+                    "sources": [],
                     "confidence": "low",
                     "needs_clarification": True
                 }
                 
-            yield f"event: final\ndata: {json.dumps(final_json)}\n\n"
+            yield {
+                "event": "final",
+                "data": json.dumps(final_json)
+            }
 
         except Exception as e:
             logger.error(f"Error during generation: {e}")
             fallback = {
+                "mode": mode,
                 "answer": "An error occurred during answer generation.",
-                "citations": [],
+                "sources": [],
                 "confidence": "low",
                 "needs_clarification": False
             }
-            yield f"event: final\ndata: {json.dumps(fallback)}\n\n"
+            yield {
+                "event": "final",
+                "data": json.dumps(fallback)
+            }

@@ -36,8 +36,9 @@ class DocumentChunker:
         all_child_chunks = []
         chunk_index = 0
 
+        page_num = metadata.get("page_start", 0) if metadata else 0
         for p_index, parent_text in enumerate(parent_docs):
-            parent_id = f"{document_id}_parent_{p_index}"
+            parent_id = f"{document_id}_page_{page_num}_parent_{p_index}"
             
             child_docs = self.child_splitter.split_text(parent_text)
             

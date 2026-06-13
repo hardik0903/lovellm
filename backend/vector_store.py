@@ -29,7 +29,7 @@ class VectorStore:
 
         embeddings = self.embedding_model.encode(texts).tolist()
         
-        self.collection.add(
+        self.collection.upsert(
             ids=ids,
             embeddings=embeddings,
             documents=texts,

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { UploadCloud, CheckCircle, AlertCircle, FilePlus } from 'lucide-react';
 
 export default function DocumentUpload({ onUploadSuccess }) {
   const [dragActive, setDragActive] = useState(false);
@@ -36,14 +36,13 @@ export default function DocumentUpload({ onUploadSuccess }) {
   const handleFiles = async (file) => {
     setStatus({ type: '', message: '' });
     
-    // Validate file type
     if (!file.name.endsWith('.pdf') && !file.name.endsWith('.txt')) {
-      setStatus({ type: 'error', message: 'Only PDF and TXT files are supported.' });
+      setStatus({ type: 'error', message: 'PDF or TXT only.' });
       return;
     }
 
     setIsUploading(true);
-    setStatus({ type: 'loading', message: `Uploading ${file.name}...` });
+    setStatus({ type: 'loading', message: `Uploading...` });
 
     const formData = new FormData();
     formData.append('file', file);
@@ -60,7 +59,7 @@ export default function DocumentUpload({ onUploadSuccess }) {
         throw new Error(data.detail || 'Upload failed');
       }
 
-      setStatus({ type: 'success', message: `Processed ${data.chunks_processed} chunks from ${file.name}` });
+      setStatus({ type: 'success', message: `Uploaded ${file.name}` });
       if (onUploadSuccess) onUploadSuccess(data.doc_id);
     } catch (error) {
       console.error(error);
@@ -76,12 +75,13 @@ export default function DocumentUpload({ onUploadSuccess }) {
 
   return (
     <div 
-      className={`upload-container ${dragActive ? "drag-active" : ""}`}
+      className={`upload-compact ${dragActive ? "drag-active" : ""}`}
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
       onDrop={handleDrop}
       onClick={onButtonClick}
+      title="Upload Document"
     >
       <input 
         ref={inputRef} 
@@ -92,26 +92,19 @@ export default function DocumentUpload({ onUploadSuccess }) {
       />
       
       {isUploading ? (
-        <div className="upload-icon">
-          <div style={{ animation: 'spin 1s linear infinite' }}>
-            <UploadCloud size={48} />
-          </div>
+        <div style={{ animation: 'spin 1s linear infinite', color: 'var(--accent-color)' }}>
+          <UploadCloud size={24} style={{ margin: '0 auto' }} />
         </div>
       ) : (
-        <div className="upload-icon">
-          <FileText size={48} />
-        </div>
+        <FilePlus size={24} style={{ margin: '0 auto', color: 'var(--text-secondary)' }} />
       )}
       
-      <div className="upload-text">
-        <strong>Click to upload</strong> or drag and drop<br/>
-        PDF or TXT files
-      </div>
+      <p>Drop file or click to upload</p>
       
       {status.message && (
         <div className={`upload-status status-${status.type}`}>
-          {status.type === 'success' && <CheckCircle size={16} style={{ verticalAlign: 'text-bottom', marginRight: '4px' }} />}
-          {status.type === 'error' && <AlertCircle size={16} style={{ verticalAlign: 'text-bottom', marginRight: '4px' }} />}
+          {status.type === 'success' && <CheckCircle size={12} style={{ verticalAlign: 'middle', marginRight: '4px' }} />}
+          {status.type === 'error' && <AlertCircle size={12} style={{ verticalAlign: 'middle', marginRight: '4px' }} />}
           {status.message}
         </div>
       )}
