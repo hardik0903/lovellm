@@ -135,6 +135,55 @@ export default function ChatInterface({ activeMode }) {
     );
   };
 
+  const isValidUrl = (url) => {
+    if (!url || typeof url !== 'string') return false;
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
+  const renderSourceCard = (src, i) => {
+    const validUrl = isValidUrl(src.url);
+    const cardContent = (
+      <>
+        <div className="source-title">{src.title || 'Unknown source'}</div>
+        <div className="source-meta">
+          <span className="source-type">
+            {src.type === 'web' ? <Globe size={10} /> : <FileText size={10} />}
+            {src.type}
+          </span>
+          {src.type === 'document' && src.page && <span>Page {src.page}</span>}
+          {validUrl && (
+            <span
+              style={{ fontSize: '10px', opacity: 0.6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }}
+            >
+              {new URL(src.url).hostname}
+            </span>
+          )}
+        </div>
+      </>
+    );
+
+    return validUrl ? (
+      <a
+        key={i}
+        href={src.url}
+        target="_blank"
+        rel="noreferrer noopener"
+        className="source-card"
+      >
+        {cardContent}
+      </a>
+    ) : (
+      <div key={i} className="source-card" style={{ cursor: 'default' }}>
+        {cardContent}
+      </div>
+    );
+  };
+
   return (
     <main className="main-content">
       {messages.length === 0 ? (
@@ -185,18 +234,7 @@ export default function ChatInterface({ activeMode }) {
 
                   {msg.sources && msg.sources.length > 0 && (
                     <div className="sources-grid">
-                      {msg.sources.map((src, i) => (
-                        <a key={i} href={src.url !== src.title ? src.url : '#'} target="_blank" rel="noreferrer" className="source-card">
-                          <div className="source-title">{src.title}</div>
-                          <div className="source-meta">
-                            <span className="source-type">
-                              {src.type === 'web' ? <Globe size={10} /> : <FileText size={10} />}
-                              {src.type}
-                            </span>
-                            {src.type === 'document' && <span>Page 1</span>}
-                          </div>
-                        </a>
-                      ))}
+                      {msg.sources.map((src, i) => renderSourceCard(src, i))}
                     </div>
                   )}
                 </div>

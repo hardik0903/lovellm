@@ -99,72 +99,32 @@ Question:
             )
 
             buffer = ""
-            in_answer = False
-            answer_started = False
-            
             async for chunk in stream:
                 content = chunk.choices[0].delta.content
-                if not content:
-                    continue
-                    
-                buffer += content
-                
-                # Simple state machine to extract the "answer" field for delta events
-                if not answer_started:
-                    # Look for "answer": "
-                    if '"answer"' in buffer:
-                        start_idx = buffer.find('"answer"')
-                        # Find the first quote after "answer"
-                        val_start = buffer.find('"', start_idx + 8)
-                        if val_start != -1:
-                            val_start += 1 # move past quote
-                            answer_started = True
-                            in_answer = True
-                            # Extract what we have so far
-                            text_so_far = buffer[val_start:]
-                            # check if it ended immediately
-                            if '"' in text_so_far and not text_so_far.endswith('\\"'):
-                                end_idx = text_so_far.find('"')
-                                text_so_far = text_so_far[:end_idx]
-                                in_answer = False
-                            if text_so_far:
-                                yield {
-                                    "event": "delta",
-                                    "data": json.dumps({'text': text_so_far})
-                                }
-                elif in_answer:
-                    # Check if we hit the closing quote of the answer field
-                    # This is a naive check (assumes no escaped quotes in content, or handles them simply)
-                    # For production, a proper incremental JSON parser is better.
-                    if content.find('"') != -1:
-                        # Might be closing quote
-                        parts = content.split('"', 1)
-                        if parts[0]:
-                            yield {
-                                "event": "delta",
-                                "data": json.dumps({'text': parts[0]})
-                            }
-                        in_answer = False
-                    else:
-                        # Just yield the delta text
-                        yield {
-                            "event": "delta",
-                            "data": json.dumps({'text': content})
-                        }
+                if content:
+                    buffer += content
             
-            # Now parse the full buffer as JSON to send the final event
+            # Now parse the full buffer as JSON
             try:
                 final_json = json.loads(buffer)
-                final_json["mode"] = mode
             except json.JSONDecodeError:
-                logger.error("Failed to parse Groq output as JSON.")
-                # Attempt to recover or use fallback
+                logger.error(f"Failed to parse Groq output as JSON. Raw: {buffer[:200]}")
                 final_json = {
-                    "mode": mode,
                     "answer": "Error: Failed to generate valid structured output.",
                     "sources": [],
                     "confidence": "low",
                     "needs_clarification": True
+                }
+
+            final_json["mode"] = mode
+
+            # Emit a single delta with the full answer text so the frontend
+            # still gets a streaming-style event
+            answer_text = final_json.get("answer", "")
+            if answer_text:
+                yield {
+                    "event": "delta",
+                    "data": json.dumps({'text': answer_text})
                 }
                 
             yield {

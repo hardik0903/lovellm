@@ -14,6 +14,28 @@ from generator import AnswerGenerator
 from web_search import WebSearcher
 from web_scraper import WebScraper
 from chunking import DocumentChunker
+from rank_bm25 import BM25Okapi
+import re
+
+def _bm25_rank_chunks(query: str, chunks: list, top_k: int = 20) -> list:
+    """Rank chunks by BM25 relevance to the query and return top_k."""
+    if not chunks:
+        return []
+    
+    def tokenize(text: str) -> list:
+        return re.findall(r'\b\w+\b', text.lower())
+        
+    corpus = [tokenize(c.get("context_text", c.get("text", ""))) for c in chunks]
+    bm25 = BM25Okapi(corpus)
+    scores = bm25.get_scores(tokenize(query))
+    
+    scored = sorted(enumerate(scores), key=lambda x: x[1], reverse=True)
+    top_indices = [i for i, score in scored[:top_k] if score > 0]
+    
+    if not top_indices:
+        return chunks[:top_k]
+        
+    return [chunks[i] for i in top_indices]
 
 class PipelineOrchestrator:
     def __init__(self, generator: AnswerGenerator, local_retriever):
@@ -131,7 +153,7 @@ class PipelineOrchestrator:
         # Pass answer plan into generator via prompt (in a real system we'd modify generator to take it)
         # We will inject the requested sections into the context chunks for now, or generator prompt.
         
-        async for event in self.generator.generate_stream(resolved_query, context_chunks[:20], mode=mode, source_map=source_metadata_map, answer_plan=answer_plan):
+        async for event in self.generator.generate_stream(resolved_query, _bm25_rank_chunks(resolved_query, context_chunks, top_k=20), mode=mode, source_map=source_metadata_map, answer_plan=answer_plan):
             if event["event"] == "final":
                 try:
                     final_answer_obj = json.loads(event["data"])
