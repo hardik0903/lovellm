@@ -9,6 +9,13 @@ import TroubleshootTable from './display/TroubleshootTable';
 import RecommendCard from './display/RecommendCard';
 import StatsTable from './display/StatsTable';
 import SummaryBlock from './display/SummaryBlock';
+import MathSolver from './display/MathSolver';
+import { KnowledgeAgent } from './agents/KnowledgeAgent';
+import { CodeAgent } from './agents/CodeAgent';
+import { WritingAgent } from './agents/WritingAgent';
+import { DocumentAgent } from './agents/DocumentAgent';
+import { ResearchAgent } from './agents/ResearchAgent';
+import { DataAgent } from './agents/DataAgent';
 
 export default function ChatInterface({ activeMode }) {
   const [messages, setMessages] = useState([]);
@@ -89,11 +96,27 @@ export default function ChatInterface({ activeMode }) {
                 try {
                   const data = JSON.parse(dataStr);
                   
-                  if (currentEvent === 'delta') {
-                    streamedText += data.text;
+                  if (currentEvent === 'delta' || currentEvent === 'math_thinking') {
+                    streamedText += data.text || data.delta || "";
                     setMessages(prev => prev.map(m => 
                       m.id === assistantId ? { ...m, content: streamedText } : m
                     ));
+                  } else if (currentEvent === 'math_step') {
+                    setMessages(prev => prev.map(m => {
+                      if (m.id === assistantId) {
+                        const existingDisplay = m.display || { type: 'math_solution', steps: [] };
+                        const existingSteps = existingDisplay.steps || [];
+                        return {
+                          ...m,
+                          display: {
+                            ...existingDisplay,
+                            type: 'math_solution',
+                            steps: [...existingSteps, data]
+                          }
+                        };
+                      }
+                      return m;
+                    }));
                   } else if (currentEvent === 'final') {
                     setMessages(prev => prev.map(m => 
                       m.id === assistantId ? { 
@@ -103,7 +126,9 @@ export default function ChatInterface({ activeMode }) {
                         mode: data.mode,
                         confidence: data.confidence,
                         needsClarification: data.needs_clarification,
-                        display: data.display || null
+                        display: data.display || null,
+                        routedAgent: data.routed_agent,
+                        uncertaintyFlag: data.uncertainty_flag
                       } : m
                     ));
                   }
@@ -133,25 +158,37 @@ export default function ChatInterface({ activeMode }) {
       return <Markdown options={{ forceBlock: true }}>{msg.content}</Markdown>;
     }
 
-    switch (msg.display.type) {
+    if (msg.mode === "knowledge") return <KnowledgeAgent data={msg.display} />;
+    if (msg.mode === "code") return <CodeAgent data={msg.display} />;
+    if (msg.mode === "writing") return <WritingAgent data={msg.display} />;
+    if (msg.mode === "document") return <DocumentAgent data={msg.display} />;
+    if (msg.mode === "research") return <ResearchAgent data={msg.display} />;
+    if (msg.mode === "data") return <DataAgent data={msg.display} />;
+
+    switch (msg.display?.type) {
       case "comparison_table": return <ComparisonTable data={msg.display} content={msg.content} />;
       case "pros_cons_table":  return <ProsConsTable data={msg.display} content={msg.content} />;
-      case "steps":            return <StepList data={msg.display} content={msg.content} />;
-      case "timeline":         return <TimelineTable data={msg.display} content={msg.content} />;
-      case "troubleshoot":     return <TroubleshootTable data={msg.display} content={msg.content} />;
-      case "recommend":        return <RecommendCard data={msg.display} content={msg.content} />;
-      case "stats":            return <StatsTable data={msg.display} content={msg.content} />;
-      case "summary":          return <SummaryBlock data={msg.display} content={msg.content} />;
+      case "step_list":        return <StepList data={msg.display} content={msg.content} />;
+      case "timeline_table":   return <TimelineTable data={msg.display} content={msg.content} />;
+      case "troubleshoot_table": return <TroubleshootTable data={msg.display} content={msg.content} />;
+      case "recommend_card":   return <RecommendCard data={msg.display} content={msg.content} />;
+      case "stats_table":      return <StatsTable data={msg.display} content={msg.content} />;
+      case "summary_block":    return <SummaryBlock data={msg.display} content={msg.content} />;
+      case "math_solution":    return <MathSolver data={msg.display} />;
       default:                 return <Markdown options={{ forceBlock: true }}>{msg.content}</Markdown>;
     }
   };
 
-  const renderModeBadge = (mode) => {
-    if (!mode) return null;
+  const renderModeBadge = (msg) => {
+    let mode = msg.mode;
+    if (!mode && !msg.routedAgent) return null;
     let icon = <Bot size={12} />;
     let label = mode;
     
-    if (mode === 'doc_rag') {
+    if (msg.routedAgent) {
+      label = msg.routedAgent.charAt(0).toUpperCase() + msg.routedAgent.slice(1) + ' Agent';
+      icon = <Sparkles size={12} />;
+    } else if (mode === 'doc_rag') {
       icon = <FileText size={12} />;
       label = 'Document QA';
     } else if (mode === 'direct_web') {
@@ -165,6 +202,7 @@ export default function ChatInterface({ activeMode }) {
     return (
       <div className="mode-badge">
         {icon} {label}
+        {msg.uncertaintyFlag && <span style={{marginLeft: "6px", fontSize: "10px", opacity: 0.8}}>(uncertain routing)</span>}
       </div>
     );
   };
@@ -250,7 +288,7 @@ export default function ChatInterface({ activeMode }) {
               {msg.role === 'assistant' ? (
                 <div style={{ width: '100%' }}>
                   <div className="mode-badge-container">
-                    {renderModeBadge(msg.mode)}
+                    {renderModeBadge(msg)}
                     {msg.confidence && (
                       <span className={`confidence-badge confidence-${msg.confidence}`}>
                         {msg.confidence} Confidence

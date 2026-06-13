@@ -1,83 +1,79 @@
 {
-  "passed": 10,
-  "failed": 2,
+  "passed": 4,
+  "failed": 6,
   "warnings": 0,
   "failing_modules": [
-    "Web Search",
-    "Streaming"
+    "Retrieval",
+    "Generation",
+    "Streaming",
+    "Ingestion",
+    "API",
+    "Web Search"
   ],
   "details": [
     {
-      "timestamp": "2026-06-13T18:42:33.879590",
+      "timestamp": "2026-06-13T18:10:07.471481",
       "module_name": "API",
       "test_name": "Health Check",
-      "status": "PASS"
+      "status": "FAIL",
+      "error_message": ""
     },
     {
-      "timestamp": "2026-06-13T18:42:34.051804",
+      "timestamp": "2026-06-13T18:10:07.624787",
       "module_name": "Generation",
       "test_name": "Groq Dry Run",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:34.425456",
+      "timestamp": "2026-06-13T18:10:12.898442",
       "module_name": "Ingestion",
       "test_name": "Upload Fixtures",
-      "status": "PASS"
+      "status": "FAIL",
+      "error_message": ""
     },
     {
-      "timestamp": "2026-06-13T18:42:34.428179",
+      "timestamp": "2026-06-13T18:10:12.902215",
       "module_name": "Router",
       "test_name": "Doc RAG Routing Logic",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:39.443547",
+      "timestamp": "2026-06-13T18:10:15.829144",
       "module_name": "Retrieval",
-      "test_name": "BM25 Exact Match",
-      "status": "PASS"
+      "test_name": "Unit Checks",
+      "status": "FAIL",
+      "error_message": "BM25 failed to retrieve exact match"
     },
     {
-      "timestamp": "2026-06-13T18:42:39.505356",
-      "module_name": "Retrieval",
-      "test_name": "Dense Semantic Match",
-      "status": "PASS"
-    },
-    {
-      "timestamp": "2026-06-13T18:42:39.505356",
-      "module_name": "Reranking",
-      "test_name": "Reranker Triggers",
-      "status": "PASS"
-    },
-    {
-      "timestamp": "2026-06-13T18:42:40.981136",
+      "timestamp": "2026-06-13T18:10:21.109124",
       "module_name": "Streaming",
       "test_name": "SSE Delta & Final JSON",
       "status": "FAIL",
-      "error_message": "SSE did not emit delta events",
+      "error_message": "",
       "document_id": "query_1"
     },
     {
-      "timestamp": "2026-06-13T18:42:42.898448",
+      "timestamp": "2026-06-13T18:10:27.851605",
       "module_name": "Generation",
       "test_name": "Fallback Behavior",
-      "status": "PASS"
+      "status": "FAIL",
+      "error_message": ""
     },
     {
-      "timestamp": "2026-06-13T18:42:44.478301",
+      "timestamp": "2026-06-13T18:10:29.264832",
       "module_name": "Web Search",
       "test_name": "Web Modes E2E",
       "status": "FAIL",
       "error_message": "final_json was None"
     },
     {
-      "timestamp": "2026-06-13T18:42:46.343181",
+      "timestamp": "2026-06-13T18:10:30.952924",
       "module_name": "Benchmark",
       "test_name": "Definition Benchmark",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:48.149259",
+      "timestamp": "2026-06-13T18:10:32.498146",
       "module_name": "Benchmark",
       "test_name": "Comparison Benchmark",
       "status": "PASS"

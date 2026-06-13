@@ -15,7 +15,7 @@ export default function StepList({ data, content }) {
             <div className="step-number">{idx + 1}</div>
             <div className="step-content">
               <h4>{step.title}</h4>
-              <p>{step.description}</p>
+              <p>{step.detail}</p>
             </div>
           </div>
         ))}

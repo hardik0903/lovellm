@@ -1,0 +1,227 @@
+/* MathDisplay.css */
+
+.math-solver {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: inherit;
+  margin-top: 1rem;
+}
+
+.math-problem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.math-problem-expr {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.math-category-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: right;
+  text-transform: capitalize;
+}
+
+.math-steps {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.math-step-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.math-step-card.key-step {
+  border-left-color: var(--accent-color);
+}
+
+.math-step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.step-num {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.step-title {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.math-step-divider {
+  border: 0;
+  height: 1px;
+  background: var(--border-color);
+  margin: 8px 0 12px 0;
+}
+
+.math-step-expression-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.math-step-expression {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.math-step-arrow {
+  color: var(--text-secondary);
+  margin: 0 10px;
+  font-size: 16px;
+}
+
+.math-step-result {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--accent-color);
+  letter-spacing: 0.02em;
+}
+
+.math-step-explanation {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.math-answer-box {
+  background: var(--bg-surface);
+  border-left: 3px solid var(--accent-color);
+  padding: 1.5rem;
+  margin: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.math-answer-value {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+.math-verify-section {
+  padding-bottom: 0.5rem;
+}
+
+.math-verify-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.math-verify-strip button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+}
+
+.math-verify-strip button:hover {
+  color: var(--text-primary);
+}
+
+.math-verify-content {
+  margin: 0 1rem;
+  padding: 8px 12px;
+  background: rgba(var(--accent-color-rgb), 0.05);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.math-footer-strip {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.math-footer-strip span.separator {
+  color: var(--border-color);
+}
+
+.math-graph-container {
+  margin: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  position: relative;
+}
+
+.math-graph-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 4px;
+}
+
+.math-graph-controls button {
+  background: white;
+  border: 1px solid #ccc;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.math-graph-controls button:hover {
+  background: #f1f5f9;
+}
+
+.math-fn {
+  font-style: normal;
+  font-size: inherit;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .math-graph-container {
+  background: #1e293b;
+  border-color: #334155;
+}

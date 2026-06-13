@@ -64,7 +64,7 @@ Base Schema:
   ],
   "confidence": "high|medium|low",
   "needs_clarification": false,
-  "display": "Replace with the display JSON object if requested above, otherwise null"
+  "display": null
 }}
 
 Context:

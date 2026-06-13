@@ -68,7 +68,12 @@ class AnswerVerifier:
                 
         is_relevant = True
         # Simple heuristic: If the answer is extremely short and doesn't mention the core concept, it might be irrelevant.
-        concept_stem = concept.rstrip('s').rstrip('es') if concept else ""
+        concept_stem = concept if concept else ""
+        if concept_stem:
+            if concept_stem.endswith('es') and not concept_stem.endswith('ses'):
+                concept_stem = concept_stem[:-2]
+            elif concept_stem.endswith('s') and not concept_stem.endswith('ss'):
+                concept_stem = concept_stem[:-1]
         if concept_stem and len(concept_stem) >= 3 and concept_stem not in answer_text:
             is_relevant = False
             

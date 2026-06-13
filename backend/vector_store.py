@@ -4,7 +4,7 @@ import chromadb
 from sentence_transformers import SentenceTransformer
 from logger import logger
 import diskcache
-
+import json
 class VectorStore:
     def __init__(self, persist_dir: str = "./data/chroma"):
         os.makedirs(persist_dir, exist_ok=True)
@@ -13,8 +13,15 @@ class VectorStore:
         logger.info("Loading sentence transformer model for dense embeddings...")
         self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
         logger.info("Dense embedding model loaded.")
-        self.parent_cache = diskcache.Cache(os.path.join(persist_dir, "parents_cache"))
-
+        self.parent_cache_path = os.path.join(persist_dir, "parent_cache.json")
+        self.parent_cache = {}
+        if os.path.exists(self.parent_cache_path):
+            try:
+                with open(self.parent_cache_path, "r", encoding="utf-8") as f:
+                    self.parent_cache = json.load(f)
+                logger.info(f"Loaded parent cache with {len(self.parent_cache)} entries.")
+            except Exception as e:
+                logger.error(f"Failed to load parent cache: {e}")
     def add_chunks(self, chunks: List[Dict[str, Any]]):
         if not chunks:
             return
@@ -40,6 +47,12 @@ class VectorStore:
             metadatas=metadatas
         )
 
+        try:
+            with open(self.parent_cache_path, "w", encoding="utf-8") as f:
+                json.dump(self.parent_cache, f)
+            logger.info("Saved parent cache to disk.")
+        except Exception as e:
+            logger.error(f"Failed to save parent cache: {e}")
     def search(self, query: str, top_k: int = 10) -> List[Dict[str, Any]]:
         logger.info(f"Dense search for query: {query}")
         query_embedding = self.embedding_model.encode([query]).tolist()
@@ -65,6 +78,8 @@ class VectorStore:
                 parent_text = self.parent_cache.get(meta_with_parent["parent_id"])
                 if parent_text:
                     meta_with_parent["parent_text"] = parent_text
+                else:
+                    logger.warning(f"Parent text missing in cache for {meta_with_parent['parent_id']}")
 
             output.append({
                 "chunk_id": results["ids"][0][i],

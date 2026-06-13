@@ -24,6 +24,11 @@ class QueryRouter:
         word_count = len(query.split())
         
         if is_semantic and not has_id_or_number and not has_quotes:
+            # Check for math keywords in semantic mode
+            from math_detector import MathDetector
+            if MathDetector().detect(query)["is_math"]:
+                logger.info("Router decision: math")
+                return "math"
             logger.info("Router decision: dense")
             return "dense"
             

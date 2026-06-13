@@ -52,7 +52,7 @@ class WebSearcher:
                             "snippet": page.summary[:300] + "..."
                         })
                     except Exception as e_page:
-                        logger.warning(f"Failed to fetch wikipedia page for {title}: {e_page}")
+                        logger.warning(f"Failed to fetch wikipedia page for {title}: {repr(e_page)}")
             except Exception as e_wiki:
                 logger.error(f"Error during Wikipedia search: {e_wiki}")
                 

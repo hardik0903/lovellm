@@ -42,6 +42,13 @@ class SearchPlanner:
             budget["max_tokens_for_context"] = 4000
             budget["retrieval_strategy"] = "doc_rag"
             
+        elif mode == "math" or intent == "math":
+            budget["max_search_passes"] = 0
+            budget["max_sources"] = 0
+            budget["max_tokens_for_context"] = 0
+            budget["retrieval_strategy"] = "math"
+            
         # Return merged plan
         final_plan = {**query_plan, "budget": budget}
+        final_plan["mode"] = budget["retrieval_strategy"]
         return final_plan

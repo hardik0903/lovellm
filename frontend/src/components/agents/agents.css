@@ -1,0 +1,79 @@
+.agent-container {
+  font-family: 'Inter', sans-serif;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  margin-right: 0.5rem;
+  font-weight: 600;
+}
+
+.badge.domain { background-color: #e0e7ff; color: #3730a3; }
+.badge.expertise { background-color: #dcfce7; color: #166534; }
+
+.concept-header h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.definition-box {
+  background-color: #fff;
+  padding: 1rem;
+  border-left: 4px solid #3b82f6;
+  margin-bottom: 1rem;
+  border-radius: 0 4px 4px 0;
+}
+
+.analogy-box {
+  background-color: #fef3c7;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  color: #92400e;
+}
+
+.component-header {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  background-color: #fff;
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+}
+
+.component-header:hover {
+  background-color: #f3f4f6;
+}
+
+.component-details {
+  background-color: #fff;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  margin-bottom: 0.5rem;
+  margin-top: -0.25rem;
+}
+
+.tag {
+  display: inline-block;
+  background-color: #e5e7eb;
+  color: #374151;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  margin-right: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tag-blue { background-color: #dbeafe; color: #1e40af; }

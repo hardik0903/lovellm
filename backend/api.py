@@ -1,5 +1,6 @@
 import os
 import shutil
+import asyncio
 from dotenv import load_dotenv
 load_dotenv()
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
@@ -21,7 +22,6 @@ app = FastAPI(title="Document Q&A Service")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # In production, restrict this
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -33,6 +33,12 @@ bm25_store = BM25Store(persist_dir="./data/bm25")
 retriever = HybridRetriever(vector_store, bm25_store)
 generator = AnswerGenerator()
 ingestor = DocumentIngestor()
+orchestrator = PipelineOrchestrator(generator, retriever)
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Pre-warming reranker model...")
+    await asyncio.to_thread(retriever.reranker._load_model)
 
 class ChatRequest(BaseModel):
     query: str
@@ -61,19 +67,19 @@ async def upload_document(file: UploadFile = File(...)):
             
         # Index in both stores
         vector_store.add_chunks(chunks)
-        bm25_store.add_chunks(chunks)
+        await asyncio.to_thread(bm25_store.add_chunks, chunks)
         
-        return {"message": "Document ingested successfully", "chunks_processed": len(chunks), "doc_id": doc_id}
-        
-    except Exception as e:
-        logger.error(f"Error during ingestion: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
         if os.path.exists(file_path):
             try:
                 os.remove(file_path)
             except OSError as e:
                 logger.error(f"Error removing uploaded file {file_path}: {e}")
+                
+        return {"message": "Document ingested successfully", "chunks_processed": len(chunks), "doc_id": doc_id}
+        
+    except Exception as e:
+        logger.error(f"Error during ingestion: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):
@@ -84,7 +90,6 @@ async def chat_endpoint(request: ChatRequest):
         
     logger.info(f"Received chat query: {query} with mode: {mode}")
     
-    orchestrator = PipelineOrchestrator(generator, retriever)
     has_docs = vector_store.collection.count() > 0
     return EventSourceResponse(orchestrator.execute(query, mode=mode, has_documents=has_docs))
 

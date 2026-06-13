@@ -67,9 +67,57 @@ class PipelineOrchestrator:
         # Determine Display Format & Ambiguity BEFORE query understanding
         display_context = self.display_agent.resolve_and_detect(
             raw_query=resolved_query,
-            conversation_history=self.context.history_objects
+            conversation_history=self.context.history_objects[-5:]
         )
         
+        # Master Router Interception (Step 0.5)
+        from master_router import master_router_instance
+        
+        # Prepare context for the router
+        router_context = {
+            "has_documents": has_documents,
+            "has_data_file": has_documents, # Assuming data uploads are handled similarly for now
+            "local_retriever": self.local_retriever,
+            "display_context": display_context
+        }
+        
+        route_decision = master_router_instance.route(resolved_query, router_context)
+        confidence = route_decision["confidence"]
+        
+        if route_decision["selected_agent"] and confidence >= 0.5:
+            agent_name = route_decision["selected_agent"]
+            logger.info(f"[MASTER ROUTER] Dispatching to {agent_name} Agent with confidence {confidence:.2f}")
+            
+            # Fetch the agent from registry
+            agent = master_router_instance.registry.get_agent(agent_name)
+            if agent:
+                uncertainty_flag = (0.5 <= confidence < 0.7)
+                
+                # We yield the agent's stream
+                async for event in agent.solve(resolved_query, router_context):
+                    # Attach uncertainty flag to final event if needed
+                    if uncertainty_flag and event["event"] == "final":
+                        try:
+                            data = json.loads(event["data"])
+                            data["uncertainty_flag"] = True
+                            data["routed_agent"] = agent_name
+                            event["data"] = json.dumps(data)
+                        except:
+                            pass
+                            
+                    # Inject routed_agent to all final events for the UI badge
+                    if event["event"] == "final":
+                        try:
+                            data = json.loads(event["data"])
+                            data["routed_agent"] = agent_name
+                            event["data"] = json.dumps(data)
+                        except:
+                            pass
+                            
+                    yield event
+                return
+        else:
+            logger.info(f"[MASTER ROUTER] Confidence too low ({confidence:.2f}), falling through to general pipeline.")
         # Use the disambiguated query for further downstream routing
         final_query = display_context["resolved_query"]
         logger.info(f"[ROUTER] Disambiguated Query: {final_query}")
@@ -231,6 +279,8 @@ class PipelineOrchestrator:
                     
         # 8. Answer Planning
         answer_plan = self.answer_planner.create_plan(search_plan)
+        answer_plan["original_query"] = final_query
+        answer_plan["mode"] = plan_mode
         
         # 9. Groq Synthesis
         # We will wrap the generator to intercept the final JSON
