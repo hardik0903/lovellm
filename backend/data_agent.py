@@ -50,11 +50,21 @@ class DataAgent(BaseAgent):
             "statistics": analysis.get("statistics", {}),
             "follow_up_questions": analysis.get("follow_up_questions", [])
         }
-        
+
+        answer_text = analysis.get("answer", "Analysis complete.")
+
+        yield {
+            "event": "delta",
+            "data": json.dumps({"text": answer_text})
+        }
         yield {
             "event": "final",
             "data": json.dumps({
                 "mode": "data",
+                "answer": answer_text,
+                "sources": [],
+                "confidence": "high",
+                "needs_clarification": False,
                 "display": display_data
             })
         }

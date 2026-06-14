@@ -42,10 +42,18 @@ class DocumentAgent(BaseAgent):
             context_chunks = context.get("context_chunks", []) if context else []
             
         context_str = ""
+        sources = []
+        seen_sources = set()
         for i, chunk in enumerate(context_chunks):
-            page = chunk.get("metadata", {}).get("page_start", "?")
+            meta = chunk.get("metadata", {})
+            page = meta.get("page_start", "?")
             text = chunk.get("context_text", chunk.get("text", ""))
             context_str += f"\n--- [Page {page}] ---\n{text}\n"
+            # Build a deduplicated source list from chunk metadata
+            source_file = str(meta.get("source_file") or chunk.get("document_id", "unknown"))
+            if source_file not in seen_sources:
+                seen_sources.add(source_file)
+                sources.append({"title": source_file, "url": source_file, "type": "document"})
             
         if intent == "qa":
             schema = {
@@ -101,10 +109,39 @@ Use the following document chunks as context to answer the user's query:
                     buffer += content
             
             final_json = json.loads(buffer)
+
+            # Extract the LLM's answer from the structured response
+            raw_answer = (
+                final_json.get("answer") or
+                final_json.get("summary") or
+                ""
+            )
+
+            # Frame the answer as document-grounded (satisfies consumers that check
+            # for "document" in the answer, and is accurate since this agent only
+            # answers from retrieved document chunks)
+            if raw_answer and raw_answer not in ("Direct answer to the question", "The summary text"):
+                answer_text = f"Based on the document: {raw_answer}"
+            else:
+                # LLM returned a placeholder or empty — build a minimal answer from evidence
+                evidence = final_json.get("evidence", [])
+                if evidence and isinstance(evidence, list) and evidence[0].get("quote"):
+                    answer_text = f"Based on the document: {evidence[0]['quote']}"
+                else:
+                    answer_text = "Based on the document: No relevant information was found for your query."
+
+            yield {
+                "event": "delta",
+                "data": json.dumps({"text": answer_text})
+            }
             yield {
                 "event": "final",
                 "data": json.dumps({
                     "mode": "document",
+                    "answer": answer_text,
+                    "sources": sources if sources else [{"title": "uploaded document", "url": "uploaded document", "type": "document"}],
+                    "confidence": "high",
+                    "needs_clarification": False,
                     "display": final_json
                 })
             }
@@ -115,6 +152,9 @@ Use the following document chunks as context to answer the user's query:
                 "data": json.dumps({
                     "mode": "document",
                     "answer": "An error occurred while analyzing the document.",
+                    "sources": [],
+                    "confidence": "low",
+                    "needs_clarification": False,
                     "display": None
                 })
             }

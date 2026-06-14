@@ -74,12 +74,17 @@ Context:
     async def generate_stream(self, query: str, context_chunks: List[Dict[str, Any]], mode: str = "doc_rag", source_map: Dict[str, Any] = None, answer_plan: Dict[str, Any] = None, display_injection: str = "") -> AsyncGenerator[Dict[str, Any], None]:
         if not context_chunks:
             # Fallback for no context
+            fallback_answer = "I could not find support for that in the retrieved documents."
             fallback = {
                 "mode": mode,
-                "answer": "I could not find support for that in the retrieved documents.",
+                "answer": fallback_answer,
                 "sources": [],
                 "confidence": "low",
                 "needs_clarification": False
+            }
+            yield {
+                "event": "delta",
+                "data": json.dumps({"text": fallback_answer})
             }
             yield {
                 "event": "final",
@@ -139,12 +144,17 @@ Context:
 
         except Exception as e:
             logger.error(f"Error during generation: {e}")
+            fallback_answer = "An error occurred during answer generation."
             fallback = {
                 "mode": mode,
-                "answer": "An error occurred during answer generation.",
+                "answer": fallback_answer,
                 "sources": [],
                 "confidence": "low",
                 "needs_clarification": False
+            }
+            yield {
+                "event": "delta",
+                "data": json.dumps({"text": fallback_answer})
             }
             yield {
                 "event": "final",

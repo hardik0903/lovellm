@@ -16,7 +16,7 @@ class MathAgent:
     def detect(self, query: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
         return self.detector.detect(query)
 
-    async def solve(self, query: str) -> AsyncGenerator[Dict[str, Any], None]:
+    async def solve(self, query: str, context: Dict[str, Any] = None) -> AsyncGenerator[Dict[str, Any], None]:
         logger.info(f"MathAgent taking over query: {query}")
         
         classification = await self.classifier.classify(query)
@@ -42,12 +42,18 @@ class MathAgent:
                 "type": "math_solution",
                 **final_solution
             }
-            
+
+            answer_text = final_solution.get("solution", "")
+
+            yield {
+                "event": "delta",
+                "data": json.dumps({"text": answer_text})
+            }
             yield {
                 "event": "final",
                 "data": json.dumps({
                     "mode": "math",
-                    "answer": final_solution.get("solution", ""),
+                    "answer": answer_text,
                     "display": display_envelope,
                     "confidence": "high",
                     "sources": []

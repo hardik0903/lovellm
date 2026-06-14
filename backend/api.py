@@ -85,12 +85,17 @@ async def upload_document(file: UploadFile = File(...)):
 async def chat_endpoint(request: ChatRequest):
     query = request.query
     mode = request.mode
-    if not query:
+    if not query or not query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
         
     logger.info(f"Received chat query: {query} with mode: {mode}")
     
-    has_docs = vector_store.collection.count() > 0
+    try:
+        has_docs = vector_store.collection.count() > 0
+    except Exception as e:
+        logger.error(f"Failed to read vector store collection count: {e}")
+        has_docs = False
+
     return EventSourceResponse(orchestrator.execute(query, mode=mode, has_documents=has_docs))
 
 @app.get("/health")

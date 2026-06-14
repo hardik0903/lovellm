@@ -1,83 +1,84 @@
 {
-  "passed": 10,
-  "failed": 2,
+  "passed": 13,
+  "failed": 0,
   "warnings": 0,
-  "failing_modules": [
-    "Web Search",
-    "Streaming"
-  ],
+  "failing_modules": [],
   "details": [
     {
-      "timestamp": "2026-06-13T18:42:33.879590",
+      "timestamp": "2026-06-13T19:25:53.057057",
       "module_name": "API",
       "test_name": "Health Check",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:34.051804",
+      "timestamp": "2026-06-13T19:25:53.331717",
       "module_name": "Generation",
       "test_name": "Groq Dry Run",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:34.425456",
+      "timestamp": "2026-06-13T19:25:53.720070",
       "module_name": "Ingestion",
       "test_name": "Upload Fixtures",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:34.428179",
+      "timestamp": "2026-06-13T19:25:53.721904",
       "module_name": "Router",
       "test_name": "Doc RAG Routing Logic",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:39.443547",
+      "timestamp": "2026-06-13T19:25:58.660577",
       "module_name": "Retrieval",
       "test_name": "BM25 Exact Match",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:39.505356",
+      "timestamp": "2026-06-13T19:25:58.719124",
       "module_name": "Retrieval",
       "test_name": "Dense Semantic Match",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:39.505356",
+      "timestamp": "2026-06-13T19:25:58.719124",
       "module_name": "Reranking",
       "test_name": "Reranker Triggers",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:40.981136",
+      "timestamp": "2026-06-13T19:25:59.967524",
       "module_name": "Streaming",
       "test_name": "SSE Delta & Final JSON",
-      "status": "FAIL",
-      "error_message": "SSE did not emit delta events",
+      "status": "PASS",
       "document_id": "query_1"
     },
     {
-      "timestamp": "2026-06-13T18:42:42.898448",
+      "timestamp": "2026-06-13T19:26:01.515042",
       "module_name": "Generation",
       "test_name": "Fallback Behavior",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:44.478301",
+      "timestamp": "2026-06-13T19:26:02.666889",
       "module_name": "Web Search",
-      "test_name": "Web Modes E2E",
-      "status": "FAIL",
-      "error_message": "final_json was None"
+      "test_name": "Direct Web Routing & Extraction",
+      "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:46.343181",
+      "timestamp": "2026-06-13T19:26:04.390193",
+      "module_name": "Web Search",
+      "test_name": "Web Modes E2E",
+      "status": "PASS"
+    },
+    {
+      "timestamp": "2026-06-13T19:26:05.992208",
       "module_name": "Benchmark",
       "test_name": "Definition Benchmark",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-13T18:42:48.149259",
+      "timestamp": "2026-06-13T19:26:07.849062",
       "module_name": "Benchmark",
       "test_name": "Comparison Benchmark",
       "status": "PASS"

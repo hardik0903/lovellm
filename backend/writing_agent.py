@@ -81,10 +81,28 @@ If the task is to edit existing text, fill out the changes array with specific e
                     buffer += content
             
             final_json = json.loads(buffer)
+
+            # Extract a human-readable answer for consumers that expect the 'answer' field
+            answer_text = (
+                final_json.get("result") or
+                final_json.get("summary_of_changes") or
+                ""
+            )
+            if not answer_text:
+                answer_text = "Here is the writing result for your query."
+
+            yield {
+                "event": "delta",
+                "data": json.dumps({"text": answer_text})
+            }
             yield {
                 "event": "final",
                 "data": json.dumps({
                     "mode": "writing",
+                    "answer": answer_text,
+                    "sources": [],
+                    "confidence": "high",
+                    "needs_clarification": False,
                     "display": final_json
                 })
             }
@@ -95,6 +113,9 @@ If the task is to edit existing text, fill out the changes array with specific e
                 "data": json.dumps({
                     "mode": "writing",
                     "answer": "An error occurred during the writing task.",
+                    "sources": [],
+                    "confidence": "low",
+                    "needs_clarification": False,
                     "display": None
                 })
             }

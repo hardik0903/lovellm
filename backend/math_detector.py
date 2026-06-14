@@ -13,6 +13,7 @@ class MathDetector:
             r'∫.*dx', # integrals
             r'sin\(|cos\(|tan\(', # trig
             r'\d+!', # factorials
+            r'\bintegral\b.*\bdx\b'
             r'log_?\d*\(', # logarithms
             r'\\[a-zA-Z]+' # LaTeX macros
         ]

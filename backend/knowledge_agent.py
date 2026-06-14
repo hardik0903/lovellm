@@ -81,12 +81,28 @@ Query: "{query}"
                     buffer += content
             
             final_json = json.loads(buffer)
-            
-            # Send final event
+
+            # Build a human-readable answer string from the structured knowledge response
+            answer_text = final_json.get("definition", "") or final_json.get("explanation", "") or ""
+            if not answer_text:
+                answer_text = "Here is a knowledge-based explanation for your query."
+
+            # Emit delta so streaming consumers (and tests) receive incremental text
+            yield {
+                "event": "delta",
+                "data": json.dumps({"text": answer_text})
+            }
+
+            # Send final event — include both 'answer' (for test/consumer compatibility)
+            # and 'display' (for rich UI rendering)
             yield {
                 "event": "final",
                 "data": json.dumps({
                     "mode": "knowledge",
+                    "answer": answer_text,
+                    "sources": [],
+                    "confidence": "high",
+                    "needs_clarification": False,
                     "display": final_json
                 })
             }
@@ -98,6 +114,9 @@ Query: "{query}"
                 "data": json.dumps({
                     "mode": "knowledge",
                     "answer": "Failed to generate knowledge explanation.",
+                    "sources": [],
+                    "confidence": "low",
+                    "needs_clarification": False,
                     "display": None
                 })
             }

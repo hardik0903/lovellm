@@ -81,7 +81,14 @@ class PipelineOrchestrator:
             "display_context": display_context
         }
         
-        route_decision = master_router_instance.route(resolved_query, router_context)
+        # Master router is skipped when the user has explicitly forced a
+        # document-grounded or web-grounded pipeline via `mode`, since those
+        # overrides are handled later in the general pipeline and would
+        # otherwise be hijacked by specialist agents (math/knowledge/etc.)
+        if mode in ("doc", "web"):
+            route_decision = {"selected_agent": None, "confidence": 0.0, "reasoning": f"Explicit mode override: {mode}"}
+        else:
+            route_decision = master_router_instance.route(resolved_query, router_context)
         confidence = route_decision["confidence"]
         
         if route_decision["selected_agent"] and confidence >= 0.5:
