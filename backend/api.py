@@ -15,6 +15,7 @@ from bm25_store import BM25Store
 from retriever import HybridRetriever
 from generator import AnswerGenerator
 from pipeline import PipelineOrchestrator
+from raptor import list_cached_raptor_trees, load_cached_raptor_tree, render_raptor_tree_mermaid, render_raptor_tree_dot
 
 app = FastAPI(title="Document Q&A Service")
 
@@ -35,10 +36,47 @@ generator = AnswerGenerator()
 ingestor = DocumentIngestor()
 orchestrator = PipelineOrchestrator(generator, retriever)
 
+ 
+from telemetry_auth import auth_router
+from telemetry_api  import router as telemetry_router
+ 
+# Mount both — auth_router first (provides /telemetry/auth/* endpoints)
+app.include_router(auth_router,      prefix="/telemetry")
+app.include_router(telemetry_router, prefix="/telemetry")
+ 
+# ─ What this gives you ─────────────────────────────────────────────────────
+# Public  (no token needed):
+#   POST /telemetry/auth/login    { "password": "..." } → { "token": "..." }
+#   GET  /telemetry/auth/verify
+#
+# Protected (Bearer token required):
+#   GET  /telemetry/summary
+#   GET  /telemetry/routing/timeseries
+#   GET  /telemetry/routing/confidence_distribution
+#   GET  /telemetry/routing/score_heatmap
+#   GET  /telemetry/agents/latency
+#   GET  /telemetry/agents/error_rate
+#   GET  /telemetry/recent_decisions
+#   GET  /telemetry/health
+ 
+# @app.on_event("startup")
+# async def startup_event():
+#     logger.info("Pre-warming reranker model...")
+#     await asyncio.to_thread(retriever.reranker._load_model)
+
+# backend/api.py
 @app.on_event("startup")
 async def startup_event():
     logger.info("Pre-warming reranker model...")
-    await asyncio.to_thread(retriever.reranker._load_model)
+
+    warmup = getattr(retriever, "_load_reranker", None)
+    if callable(warmup):
+        await asyncio.to_thread(warmup)
+        return
+
+    reranker = getattr(retriever, "reranker", None)
+    if reranker is not None and hasattr(reranker, "_load_model"):
+        await asyncio.to_thread(reranker._load_model)
 
 class ChatRequest(BaseModel):
     query: str
@@ -68,7 +106,14 @@ async def upload_document(file: UploadFile = File(...)):
         # Index in both stores
         vector_store.add_chunks(chunks)
         await asyncio.to_thread(bm25_store.add_chunks, chunks)
-        
+
+        # FIX (#5): the in-process query cache has no awareness that the
+        # corpus just changed. Without this, a query answered before this
+        # upload (e.g. "I could not find that in the documents") could keep
+        # being served from cache indefinitely within this worker's
+        # lifetime, even though the newly-ingested document now answers it.
+        orchestrator.invalidate_cache()
+
         if os.path.exists(file_path):
             try:
                 os.remove(file_path)
@@ -107,3 +152,55 @@ def health_check():
         "bm25_index_loaded": len(bm25_store.documents) >= 0
     }
     return health_status
+
+
+@app.get("/raptor/trees/{document_id}")
+def list_raptor_trees(document_id: str):
+    """List all cached RAPTOR trees for a document id."""
+    return {"document_id": document_id, "trees": list_cached_raptor_trees(document_id)}
+
+
+@app.get("/raptor/tree/{document_id}")
+def get_raptor_tree(document_id: str, fingerprint: str | None = None):
+    """Return the persisted RAPTOR tree JSON for a document.
+
+    If fingerprint is omitted, the most recently modified cached version is used.
+    """
+    tree = load_cached_raptor_tree(document_id, fingerprint=fingerprint)
+    if tree is None:
+        raise HTTPException(status_code=404, detail=f"No cached RAPTOR tree found for {document_id}")
+    return {
+        "document_id": document_id,
+        "fingerprint": tree.stats.get("fingerprint"),
+        "tree": {
+            "document_id": tree.document_id,
+            "levels": {str(k): [n.to_chunk_dict() for n in v] for k, v in tree.levels.items()},
+            "stats": tree.stats,
+        },
+    }
+
+
+@app.get("/raptor/tree/{document_id}/mermaid")
+def get_raptor_tree_mermaid(document_id: str, fingerprint: str | None = None):
+    """Return a Mermaid representation of the cached RAPTOR tree."""
+    tree = load_cached_raptor_tree(document_id, fingerprint=fingerprint)
+    if tree is None:
+        raise HTTPException(status_code=404, detail=f"No cached RAPTOR tree found for {document_id}")
+    return {
+        "document_id": document_id,
+        "fingerprint": tree.stats.get("fingerprint"),
+        "mermaid": render_raptor_tree_mermaid(tree),
+    }
+
+
+@app.get("/raptor/tree/{document_id}/dot")
+def get_raptor_tree_dot(document_id: str, fingerprint: str | None = None):
+    """Return a Graphviz DOT representation of the cached RAPTOR tree."""
+    tree = load_cached_raptor_tree(document_id, fingerprint=fingerprint)
+    if tree is None:
+        raise HTTPException(status_code=404, detail=f"No cached RAPTOR tree found for {document_id}")
+    return {
+        "document_id": document_id,
+        "fingerprint": tree.stats.get("fingerprint"),
+        "dot": render_raptor_tree_dot(tree),
+    }

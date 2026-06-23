@@ -1,0 +1,1128 @@
+{
+  "version": "3.0",
+  "description": "Multi-document golden QA dataset for comprehensive RAG evaluation. Contains diverse PDFs from 8-page well-formatted documents to 600-page dense texts, with questions spanning factual lookup, multi-hop reasoning, list extraction, negation, numerical, paraphrase, and cross-page types.",
+  "documents": [
+    {
+      "id": "us_constitution",
+      "filename": "us_constitution.pdf",
+      "category": "small_formatted",
+      "pages": 19,
+      "description": "US Constitution from the National Constitution Center. Well-formatted, clean text, widely known facts.",
+      "questions": [
+        {
+          "id": "uc_q1",
+          "query": "What are the three qualifications required to serve as a member of the U.S. House of Representatives according to Article I, Section 2?",
+          "ground_truth_answer": "According to Article I, Section 2, a Representative must: (1) be at least 25 years old, (2) have been a citizen of the United States for at least 7 years, and (3) be an inhabitant of the state in which they are chosen at the time of election.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            2
+          ]
+        },
+        {
+          "id": "uc_q2",
+          "query": "How do the age and citizenship requirements differ between a U.S. Representative and a U.S. Senator?",
+          "ground_truth_answer": "A Representative must be at least 25 years old and have been a U.S. citizen for at least 7 years (Article I, Section 2). A Senator must be at least 30 years old and have been a U.S. citizen for at least 9 years (Article I, Section 3). Senators have a higher age requirement (30 vs. 25) and a longer citizenship requirement (9 years vs. 7 years). Both must be inhabitants of the state they represent.",
+          "question_type": "multi_hop",
+          "difficulty": "medium",
+          "relevant_pages": [
+            2,
+            3
+          ]
+        },
+        {
+          "id": "uc_q3",
+          "query": "List all the rights protected by the First Amendment to the U.S. Constitution.",
+          "ground_truth_answer": "The First Amendment protects five fundamental rights: (1) freedom of religion (both the Establishment Clause and the Free Exercise Clause), (2) freedom of speech, (3) freedom of the press, (4) the right of the people peaceably to assemble, and (5) the right to petition the Government for a redress of grievances.",
+          "question_type": "list_extraction",
+          "difficulty": "easy",
+          "relevant_pages": [
+            12
+          ]
+        },
+        {
+          "id": "uc_q4",
+          "query": "Which of the following is NOT a power granted to Congress in Article I, Section 8: laying taxes, declaring war, appointing ambassadors, or coining money?",
+          "ground_truth_answer": "Appointing ambassadors is NOT a power granted to Congress in Article I, Section 8. The power to appoint ambassadors belongs to the President under Article II, Section 2. Article I, Section 8 does grant Congress the powers to lay and collect taxes, declare war, and coin money.",
+          "question_type": "negation",
+          "difficulty": "medium",
+          "relevant_pages": [
+            4,
+            5
+          ]
+        },
+        {
+          "id": "uc_q5",
+          "query": "In simpler terms, what does Article V of the Constitution say about how the Constitution can be changed?",
+          "ground_truth_answer": "Article V establishes a two-step process for amending the Constitution. First, an amendment must be proposed either by a two-thirds vote in both the House and Senate, or by a constitutional convention called upon application of two-thirds of the state legislatures. Second, the proposed amendment must be ratified by three-fourths of the states, either through their state legislatures or through state ratifying conventions. No state may be deprived of its equal representation in the Senate without its consent.",
+          "question_type": "paraphrase",
+          "difficulty": "medium",
+          "relevant_pages": [
+            9
+          ]
+        },
+        {
+          "id": "uc_q6",
+          "query": "Considering the 13th, 14th, and 15th Amendments together, how did each progressively expand rights after the Civil War?",
+          "ground_truth_answer": "The three Reconstruction Amendments progressively expanded rights: (1) The 13th Amendment (1865) abolished slavery and involuntary servitude except as punishment for a crime. (2) The 14th Amendment (1868) established citizenship for all persons born or naturalized in the United States, guaranteed equal protection of the laws, and ensured due process. (3) The 15th Amendment (1870) prohibited denying the right to vote based on race, color, or previous condition of servitude.",
+          "question_type": "cross_page",
+          "difficulty": "hard",
+          "relevant_pages": [
+            14,
+            15
+          ]
+        },
+        {
+          "id": "uc_q7",
+          "query": "What are the requirements to be eligible for the U.S. Presidency under Article II?",
+          "ground_truth_answer": "Article II, Section 1 requires a President to be: (1) a natural born citizen of the United States, (2) at least 35 years old, and (3) a resident of the United States for at least 14 years.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            6
+          ]
+        },
+        {
+          "id": "uc_q8",
+          "query": "What does Article I, Section 8 enumerate as powers of Congress regarding money and finance?",
+          "ground_truth_answer": "Article I, Section 8 grants Congress the power to lay and collect taxes, duties, imposts, and excises; to pay debts; to borrow money on the credit of the United States; to coin money and regulate the value thereof and of foreign coin; and to fix the standard of weights and measures.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            4,
+            5
+          ]
+        },
+        {
+          "id": "uc_q9",
+          "query": "How long is a U.S. Senator's term, and what does the 17th Amendment say about vacancies?",
+          "ground_truth_answer": "A U.S. Senator serves a six-year term. The 17th Amendment provides that vacancies shall be filled by election, and that state executives (governors) may make temporary appointments until an election is held, as the state legislature prescribes.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            2,
+            15
+          ]
+        },
+        {
+          "id": "uc_q10",
+          "query": "What does the Supremacy Clause in Article VI state?",
+          "ground_truth_answer": "The Supremacy Clause states that the Constitution, laws of the United States made in pursuance thereof, and all treaties made under the authority of the United States shall be the supreme law of the land. Judges in every state are bound thereby, notwithstanding anything in state constitutions or laws to the contrary.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            10
+          ]
+        },
+        {
+          "id": "uc_q11",
+          "query": "On what grounds does Article II, Section 4 provide for removal of the President?",
+          "ground_truth_answer": "Article II, Section 4 provides that the President, Vice President, and all civil officers of the United States shall be removed from office on impeachment for, and conviction of, treason, bribery, or other high crimes and misdemeanors.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            7
+          ]
+        },
+        {
+          "id": "uc_q12",
+          "query": "What protections does the Fourth Amendment provide against government searches?",
+          "ground_truth_answer": "The Fourth Amendment protects people against unreasonable searches and seizures. It requires warrants to be supported by probable cause, supported by oath or affirmation, and to particularly describe the place to be searched and the persons or things to be seized.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            12
+          ]
+        },
+        {
+          "id": "uc_q13",
+          "query": "What right does the Second Amendment protect?",
+          "ground_truth_answer": "The Second Amendment states that a well regulated militia being necessary to the security of a free state, the right of the people to keep and bear arms shall not be infringed.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            12
+          ]
+        },
+        {
+          "id": "uc_q14",
+          "query": "What does the 10th Amendment say about powers not delegated to the federal government?",
+          "ground_truth_answer": "The 10th Amendment provides that the powers not delegated to the United States by the Constitution, nor prohibited by it to the states, are reserved to the states respectively, or to the people.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            13
+          ]
+        },
+        {
+          "id": "uc_q15",
+          "query": "Under Article III, how long do federal judges serve?",
+          "ground_truth_answer": "Article III states that judges of both the supreme and inferior courts shall hold their offices during good behaviour, which in practice means lifetime tenure — federal judges serve until they resign, retire, die, or are removed through impeachment and conviction by Congress.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            8
+          ]
+        },
+        {
+          "id": "uc_q16",
+          "query": "What Senate vote threshold does Article II require for treaty ratification?",
+          "ground_truth_answer": "Article II, Section 2 provides that the President shall have the power to make treaties, provided two-thirds of the Senators present concur. The President negotiates and signs a treaty; it takes effect only after the Senate approves it by a two-thirds supermajority vote.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            7
+          ]
+        },
+        {
+          "id": "uc_q17",
+          "query": "List all the rights enumerated in the Fifth Amendment.",
+          "ground_truth_answer": "The Fifth Amendment protects five rights: (1) the right to grand jury indictment for capital or otherwise infamous crimes; (2) protection against double jeopardy; (3) the right against self-incrimination; (4) the right to due process of law before deprivation of life, liberty, or property; (5) just compensation when private property is taken for public use.",
+          "question_type": "list_extraction",
+          "difficulty": "medium",
+          "relevant_pages": [
+            12
+          ]
+        },
+        {
+          "id": "uc_q18",
+          "query": "According to Article I Section 8, list at least six enumerated powers of Congress.",
+          "ground_truth_answer": "Article I, Section 8 enumerates many Congressional powers including: (1) lay and collect taxes; (2) borrow money on the credit of the United States; (3) regulate commerce with foreign nations and among the states; (4) establish uniform naturalization rules and bankruptcy laws; (5) coin money; (6) establish post offices and post roads; (7) promote science and arts through copyright and patent; (8) declare war; (9) raise and support armies; (10) maintain a navy; (11) make all laws necessary and proper for executing the foregoing powers.",
+          "question_type": "list_extraction",
+          "difficulty": "hard",
+          "relevant_pages": [
+            4,
+            5
+          ]
+        },
+        {
+          "id": "uc_q19",
+          "query": "List all the protections guaranteed by the Sixth Amendment.",
+          "ground_truth_answer": "The Sixth Amendment guarantees: (1) the right to a speedy trial; (2) the right to a public trial; (3) trial by an impartial jury in the state and district where the crime was committed; (4) the right to be informed of the nature and cause of the accusation; (5) the right to confront adverse witnesses; (6) the right to compulsory process for obtaining favorable witnesses; (7) the right to counsel.",
+          "question_type": "list_extraction",
+          "difficulty": "medium",
+          "relevant_pages": [
+            13
+          ]
+        },
+        {
+          "id": "uc_q20",
+          "query": "What powers are absolutely denied to the states under Article I, Section 10?",
+          "ground_truth_answer": "Article I, Section 10 prohibits states absolutely from: entering into treaties, alliances, or confederations; granting letters of marque and reprisal; coining money; emitting bills of credit; making anything but gold and silver tender in payment of debts; passing bills of attainder, ex post facto laws, or laws impairing the obligation of contracts; and granting titles of nobility.",
+          "question_type": "list_extraction",
+          "difficulty": "hard",
+          "relevant_pages": [
+            5
+          ]
+        },
+        {
+          "id": "uc_q21",
+          "query": "In what specific categories of cases does Article III grant the Supreme Court original jurisdiction?",
+          "ground_truth_answer": "Article III, Section 2 grants the Supreme Court original jurisdiction in all cases affecting ambassadors, other public ministers and consuls, and those in which a state shall be party. In all other cases the Supreme Court has appellate jurisdiction, with such exceptions as Congress prescribes.",
+          "question_type": "list_extraction",
+          "difficulty": "medium",
+          "relevant_pages": [
+            8
+          ]
+        },
+        {
+          "id": "uc_q22",
+          "query": "How many votes in each chamber are needed to override a presidential veto, combining Article I Sections 7 and requirements for legislation?",
+          "ground_truth_answer": "Article I, Section 7 provides that if the President returns a bill with objections, Congress may override the veto if two-thirds of both the House and the Senate vote to pass it. This requires at minimum two-thirds of a quorum in each chamber — effectively a supermajority requiring broad bipartisan support.",
+          "question_type": "multi_hop",
+          "difficulty": "medium",
+          "relevant_pages": [
+            4
+          ]
+        },
+        {
+          "id": "uc_q23",
+          "query": "How does Article I establish the Vice President's role, and how does the 25th Amendment expand VP succession procedures?",
+          "ground_truth_answer": "Article I, Section 3 establishes the Vice President as President of the Senate, casting tie-breaking votes. The 25th Amendment further provides that whenever the Vice Presidency is vacant, the President shall nominate a VP who takes office upon confirmation by a majority vote of both houses of Congress.",
+          "question_type": "multi_hop",
+          "difficulty": "hard",
+          "relevant_pages": [
+            3,
+            18
+          ]
+        },
+        {
+          "id": "uc_q24",
+          "query": "How do the requirements for proposing versus ratifying a constitutional amendment under Article V differ, and what is the one absolute limit Article V places?",
+          "ground_truth_answer": "Under Article V, amendments may be proposed by two-thirds of both houses of Congress or by a constitutional convention called on application of two-thirds of state legislatures. Ratification requires three-fourths of the states. The one absolute limit is that no state may be deprived of its equal suffrage in the Senate without its consent.",
+          "question_type": "multi_hop",
+          "difficulty": "hard",
+          "relevant_pages": [
+            9
+          ]
+        },
+        {
+          "id": "uc_q25",
+          "query": "How does the Electoral College established in Article II interact with the 12th Amendment's changes to produce a presidential election outcome?",
+          "ground_truth_answer": "Article II establishes that each state appoints electors equal to its total congressional representation. The 12th Amendment modified the original system to require electors to cast separate ballots for President and Vice President. If no candidate wins a majority of electoral votes for President, the House of Representatives (each state delegation having one vote) chooses the President from the top three candidates.",
+          "question_type": "multi_hop",
+          "difficulty": "hard",
+          "relevant_pages": [
+            6,
+            13
+          ]
+        },
+        {
+          "id": "uc_q26",
+          "query": "If a state governor refuses to fill a Senate vacancy by appointment, what constitutional mechanisms exist?",
+          "ground_truth_answer": "Under the 17th Amendment, when a Senate vacancy occurs the executive authority shall issue writs of election to fill the vacancy. If the state legislature has empowered the governor to make temporary appointments, the governor may do so until voters fill the vacancy by election. If no appointment power exists, the seat remains vacant until the election is held.",
+          "question_type": "multi_hop",
+          "difficulty": "hard",
+          "relevant_pages": [
+            15
+          ]
+        },
+        {
+          "id": "uc_q27",
+          "query": "How do Article I Section 2, Article I Section 3, and the 17th Amendment together define how members of Congress are chosen?",
+          "ground_truth_answer": "Article I, Section 2 provides that House members are chosen every two years by popular vote. Article I, Section 3 originally provided for Senators to be chosen by state legislatures. The 17th Amendment (1913) changed this so Senators are directly elected by popular vote of each state, with voters having the same qualifications as electors of the most numerous branch of the state legislature.",
+          "question_type": "cross_page",
+          "difficulty": "hard",
+          "relevant_pages": [
+            2,
+            3,
+            15
+          ]
+        },
+        {
+          "id": "uc_q28",
+          "query": "How do the 16th, 17th, and 19th Amendments together represent an expansion of democratic participation and federal power?",
+          "ground_truth_answer": "The 16th Amendment (1913) authorized a federal income tax, expanding federal fiscal power. The 17th Amendment (1913) established direct popular election of U.S. Senators, increasing democratic participation. The 19th Amendment (1920) prohibited denying the right to vote on account of sex, dramatically expanding the electorate by extending suffrage to women.",
+          "question_type": "cross_page",
+          "difficulty": "hard",
+          "relevant_pages": [
+            15
+          ]
+        },
+        {
+          "id": "uc_q29",
+          "query": "Trace how Articles I, II, and III together determine the process by which federal judges are appointed.",
+          "ground_truth_answer": "Under Article II, Section 2, the President nominates federal judges. The Senate, established in Article I, Section 3, provides advice and consent by majority vote. Article III, Section 1 then grants confirmed judges tenure during good behaviour. Together: Presidential nomination -> Senate confirmation -> lifetime appointment.",
+          "question_type": "cross_page",
+          "difficulty": "hard",
+          "relevant_pages": [
+            7,
+            8
+          ]
+        },
+        {
+          "id": "uc_q30",
+          "query": "How do the Preamble, the Necessary and Proper Clause, and the 10th Amendment together define the scope of federal versus state authority?",
+          "ground_truth_answer": "The Preamble states broad national purposes but grants no powers. The Necessary and Proper Clause (Article I, Section 8) grants Congress implied powers to execute its enumerated powers. The 10th Amendment reserves all non-delegated powers to the states or people. Together they create a system of enumerated federal powers with implied extensions, bounded by the reservation of remaining powers to states.",
+          "question_type": "cross_page",
+          "difficulty": "hard",
+          "relevant_pages": [
+            2,
+            5,
+            13
+          ]
+        },
+        {
+          "id": "uc_q31",
+          "query": "In plain language, what does the Equal Protection Clause of the 14th Amendment guarantee?",
+          "ground_truth_answer": "The Equal Protection Clause means no state may treat people unequally under its laws. All people within a state's jurisdiction are entitled to the same legal protections. The government cannot create arbitrary distinctions between groups when applying the law.",
+          "question_type": "paraphrase",
+          "difficulty": "easy",
+          "relevant_pages": [
+            14
+          ]
+        },
+        {
+          "id": "uc_q32",
+          "query": "Explain in modern terms what the 3rd Amendment prohibits.",
+          "ground_truth_answer": "The 3rd Amendment prohibits the government from forcing private citizens to house soldiers in their homes without consent during peacetime. During wartime, soldiers may only be quartered in private homes as prescribed by law. This addressed the colonial grievance of being forced to house British troops.",
+          "question_type": "paraphrase",
+          "difficulty": "easy",
+          "relevant_pages": [
+            12
+          ]
+        },
+        {
+          "id": "uc_q33",
+          "query": "What does the Due Process Clause of the 14th Amendment mean in practical terms?",
+          "ground_truth_answer": "The Due Process Clause means no state may deprive any person of life, liberty, or property without fair legal procedures. It encompasses procedural due process (fair notice and hearing) and substantive due process (laws must not arbitrarily infringe fundamental rights even with proper procedure).",
+          "question_type": "paraphrase",
+          "difficulty": "medium",
+          "relevant_pages": [
+            14
+          ]
+        },
+        {
+          "id": "uc_q34",
+          "query": "Restate in plain English what the Cruel and Unusual Punishments Clause in the 8th Amendment means.",
+          "ground_truth_answer": "The 8th Amendment means the government cannot inflict punishments that are barbaric, grossly disproportionate to the crime, or inconsistent with evolving standards of decency. It also prohibits excessive bail and excessive fines.",
+          "question_type": "paraphrase",
+          "difficulty": "easy",
+          "relevant_pages": [
+            13
+          ]
+        },
+        {
+          "id": "uc_q35",
+          "query": "Which branch does Article III NOT grant the power to create inferior federal courts?",
+          "ground_truth_answer": "Article III does not grant the Executive or Judicial branches the power to create inferior courts. It is Congress (the Legislative branch under Article I) that is granted the power to constitute tribunals inferior to the Supreme Court. Article III itself only establishes the Supreme Court.",
+          "question_type": "negation",
+          "difficulty": "medium",
+          "relevant_pages": [
+            4,
+            8
+          ]
+        },
+        {
+          "id": "uc_q36",
+          "query": "Is it true that the 26th Amendment lowered the voting age to 18 in federal elections only?",
+          "ground_truth_answer": "No. The 26th Amendment prohibits denying the right to vote for citizens 18 years of age or older and applies to all elections — federal, state, and local — not just federal elections.",
+          "question_type": "negation",
+          "difficulty": "easy",
+          "relevant_pages": [
+            18
+          ]
+        },
+        {
+          "id": "uc_q37",
+          "query": "Does the First Amendment apply directly to private companies and employers?",
+          "ground_truth_answer": "No. The First Amendment prohibits Congress (and by 14th Amendment incorporation, state governments) from abridging freedom of speech. It protects individuals from government censorship only. Private companies and employers are not bound by the First Amendment and may restrict speech on their own platforms without violating the Constitution.",
+          "question_type": "negation",
+          "difficulty": "medium",
+          "relevant_pages": [
+            12
+          ]
+        },
+        {
+          "id": "uc_q38",
+          "query": "How many states are required to ratify a constitutional amendment, and how many amendments have been ratified?",
+          "ground_truth_answer": "Three-fourths of the states must ratify a constitutional amendment — with 50 states that means 38 states must ratify. Twenty-seven amendments have been ratified, the first 10 (the Bill of Rights) in 1791 and the most recent (27th Amendment) in 1992.",
+          "question_type": "numerical",
+          "difficulty": "easy",
+          "relevant_pages": [
+            9,
+            18
+          ]
+        },
+        {
+          "id": "uc_q39",
+          "query": "How many senators does each state have, and what is the total U.S. Senate membership?",
+          "ground_truth_answer": "Article I, Section 3 provides that the Senate shall be composed of two Senators from each state. With 50 states, the Senate has 100 members total. Senators serve staggered six-year terms with approximately one-third up for election every two years.",
+          "question_type": "numerical",
+          "difficulty": "easy",
+          "relevant_pages": [
+            2
+          ]
+        },
+        {
+          "id": "uc_q40",
+          "query": "What fraction of Congress must vote to propose an amendment, and what fraction of states must ratify it?",
+          "ground_truth_answer": "Under Article V, two-thirds of both the House and Senate must vote to propose an amendment; three-fourths of the states must ratify. With 50 states and 535 members of Congress, at minimum 290 Representatives and 67 Senators must vote in favor; 38 states must ratify.",
+          "question_type": "numerical",
+          "difficulty": "medium",
+          "relevant_pages": [
+            9
+          ]
+        },
+        {
+          "id": "uc_q41",
+          "query": "Is there a constitutional mechanism by which a state can refuse to enforce a federal law it believes unconstitutional?",
+          "ground_truth_answer": "No. The Supremacy Clause of Article VI makes federal law supreme, binding on state judges. States have no constitutional authority to nullify federal law. The only recourse is to challenge the law through the federal courts. The doctrine of nullification was rejected and settled by the Civil War.",
+          "question_type": "technical",
+          "difficulty": "hard",
+          "relevant_pages": [
+            10
+          ]
+        },
+        {
+          "id": "uc_q42",
+          "query": "How does Article I, Section 9 limit Congress regarding habeas corpus and ex post facto laws?",
+          "ground_truth_answer": "Article I, Section 9 limits Congress in two ways: (1) the writ of habeas corpus shall not be suspended unless in cases of rebellion or invasion the public safety requires it; (2) Congress shall pass no bill of attainder and no ex post facto law — meaning Congress cannot legislate punishment of specific individuals without trial, nor criminalize acts retroactively or increase punishment after the fact.",
+          "question_type": "technical",
+          "difficulty": "hard",
+          "relevant_pages": [
+            5
+          ]
+        },
+        {
+          "id": "uc_q43",
+          "query": "What does Article I, Section 9 say about titles of nobility?",
+          "ground_truth_answer": "Article I, Section 9 states that no title of nobility shall be granted by the United States, and no federal officeholder shall accept any present, emolument, office, or title from any foreign king, prince, or state without the consent of Congress.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            5
+          ]
+        },
+        {
+          "id": "uc_q44",
+          "query": "What does the 7th Amendment guarantee regarding civil trials?",
+          "ground_truth_answer": "The 7th Amendment preserves the right to a jury trial in civil cases where the value in controversy exceeds twenty dollars. It also provides that no fact tried by a jury shall be re-examined in any federal court other than according to the rules of the common law.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            13
+          ]
+        },
+        {
+          "id": "uc_q45",
+          "query": "Under Article II, what is the President's role as Commander in Chief?",
+          "ground_truth_answer": "Article II, Section 2 designates the President as Commander in Chief of the Army and Navy and of the militia of the states when called into federal service. This makes the President the supreme commander of American military forces, though Congress retains the power to declare war and fund the military under Article I.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            7
+          ]
+        },
+        {
+          "id": "uc_q46",
+          "query": "What does the Full Faith and Credit Clause in Article IV require of states?",
+          "ground_truth_answer": "Article IV, Section 1 requires each state to give full faith and credit to the public acts, records, and judicial proceedings of every other state, meaning states must generally honor legal judgments and records from other states.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            9
+          ]
+        },
+        {
+          "id": "uc_q47",
+          "query": "What does the 24th Amendment prohibit?",
+          "ground_truth_answer": "The 24th Amendment (1964) prohibits Congress and the states from denying citizens the right to vote in federal elections by reason of failure to pay any poll tax or other tax, effectively abolishing poll taxes as a prerequisite for voting in federal elections.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            17
+          ]
+        },
+        {
+          "id": "uc_q48",
+          "query": "How does Article III define treason against the United States?",
+          "ground_truth_answer": "Article III, Section 3 defines treason as consisting only of levying war against the United States or adhering to its enemies and giving them aid and comfort. No person shall be convicted of treason unless on the testimony of two witnesses to the same overt act, or on confession in open court.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            8
+          ]
+        },
+        {
+          "id": "uc_q49",
+          "query": "What does the Privileges and Immunities Clause of Article IV guarantee?",
+          "ground_truth_answer": "Article IV, Section 2 provides that citizens of each state shall be entitled to all privileges and immunities of citizens in the several states, meaning states cannot discriminate against citizens of other states in favor of their own with respect to fundamental rights such as traveling, holding property, and accessing courts.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            9
+          ]
+        },
+        {
+          "id": "uc_q50",
+          "query": "What is the quorum requirement for each chamber of Congress under Article I, Section 5?",
+          "ground_truth_answer": "Article I, Section 5 provides that a majority of each house shall constitute a quorum to do business. A smaller number may adjourn from day to day and may compel the attendance of absent members in such manner as each house provides.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            3
+          ]
+        },
+        {
+          "id": "uc_q51",
+          "query": "What does the Speech or Debate Clause in Article I, Section 6 protect?",
+          "ground_truth_answer": "Article I, Section 6 provides that Senators and Representatives shall not be questioned in any other place for any speech or debate in either house. This protects legislative activity from executive and judicial interference. Members are also privileged from arrest during attendance at congressional sessions except for treason, felony, and breach of the peace.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            3
+          ]
+        },
+        {
+          "id": "uc_q52",
+          "query": "How does Article II prescribe the process for removing a sitting President?",
+          "ground_truth_answer": "Article II, Section 4 provides that the President is removed on impeachment by the House and conviction by the Senate. Conviction requires a two-thirds vote of Senators present. The House votes to impeach by simple majority; the Senate tries the case with the Chief Justice presiding when the President is tried.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            7
+          ]
+        },
+        {
+          "id": "uc_q53",
+          "query": "What does the Establishment Clause of the First Amendment prohibit the government from doing?",
+          "ground_truth_answer": "The Establishment Clause prohibits Congress (and by 14th Amendment incorporation, state governments) from making any law respecting an establishment of religion — meaning the government cannot officially recognize, endorse, or financially support a particular religion, creating a separation between government and religion.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            12
+          ]
+        },
+        {
+          "id": "uc_q54",
+          "query": "What power does Article I grant Congress over the District of Columbia?",
+          "ground_truth_answer": "Article I, Section 8 grants Congress the power to exercise exclusive legislation in all cases whatsoever over the district that serves as the seat of the government of the United States (not exceeding ten miles square), and over all places purchased for federal installations such as forts and dockyards.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            5
+          ]
+        },
+        {
+          "id": "uc_q55",
+          "query": "What does the 22nd Amendment restrict regarding presidential terms?",
+          "ground_truth_answer": "The 22nd Amendment (1951) limits a person to being elected President no more than twice. Additionally, no person who has held the office or acted as President for more than two years of a term to which another was elected may be elected President more than once.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            17
+          ]
+        },
+        {
+          "id": "uc_q56",
+          "query": "What are the three branches of government established by the Constitution and which Articles create each?",
+          "ground_truth_answer": "The Constitution establishes: (1) the Legislative branch — Congress — created by Article I; (2) the Executive branch — headed by the President — created by Article II; (3) the Judicial branch — comprising the Supreme Court and inferior courts — created by Article III.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            2,
+            6,
+            8
+          ]
+        },
+        {
+          "id": "uc_q57",
+          "query": "Under Article I, Section 3, who presides over a Senate trial when the President is impeached?",
+          "ground_truth_answer": "Article I, Section 3 provides that when the President of the United States is tried, the Chief Justice of the Supreme Court shall preside. The Vice President does not preside because of the conflict of interest in a trial that could result in his own succession to the presidency.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            3
+          ]
+        },
+        {
+          "id": "uc_q58",
+          "query": "How does Article I, Section 2 apportion representation among states in the House?",
+          "ground_truth_answer": "Article I, Section 2 apportions Representatives among the states according to their respective populations, determined by a census every ten years. The number of Representatives shall not exceed one for every 30,000 persons, but each state shall have at least one Representative.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            2
+          ]
+        },
+        {
+          "id": "uc_q59",
+          "query": "What does Article IV, Section 4 (the Guarantee Clause) guarantee to every state?",
+          "ground_truth_answer": "The Guarantee Clause guarantees every state a republican form of government, and that the United States shall protect each state against invasion and, upon application of the legislature or executive, against domestic violence.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            9
+          ]
+        },
+        {
+          "id": "uc_q60",
+          "query": "What limitation does Article I, Section 9 place on federal spending?",
+          "ground_truth_answer": "Article I, Section 9 states that no money shall be drawn from the Treasury but in consequence of appropriations made by law, and that a regular statement and account of public receipts and expenditures shall be published. This is the Appropriations Clause, requiring congressional approval before any federal funds can be spent.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            5
+          ]
+        },
+        {
+          "id": "uc_q61",
+          "query": "What does the 11th Amendment protect states from?",
+          "ground_truth_answer": "The 11th Amendment grants states sovereign immunity from being sued in federal court by citizens of other states or by citizens or subjects of any foreign state, without the state's consent.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            13
+          ]
+        },
+        {
+          "id": "uc_q62",
+          "query": "How long does the President have to act on legislation passed by Congress under Article I, Section 7?",
+          "ground_truth_answer": "Article I, Section 7 gives the President 10 days (Sundays excepted) to sign or veto a bill. If not returned within 10 days while Congress is in session, the bill becomes law. If Congress adjourns during those 10 days and the President does not sign, the bill does not become law — a pocket veto.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            4
+          ]
+        },
+        {
+          "id": "uc_q63",
+          "query": "What does the Ninth Amendment state about unlisted rights?",
+          "ground_truth_answer": "The Ninth Amendment states that the enumeration in the Constitution of certain rights shall not be construed to deny or disparage others retained by the people, meaning the Bill of Rights is not exhaustive — people retain rights not explicitly listed.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            13
+          ]
+        },
+        {
+          "id": "uc_q64",
+          "query": "How does Article II establish presidential succession if both President and Vice President are unable to serve?",
+          "ground_truth_answer": "Article II, Section 1 provides that Congress may declare what officer shall act as President if both the President and VP are unable to serve. The 25th Amendment substantially supplemented this with detailed procedures for presidential disability, VP vacancy, and temporary transfer of power.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            6,
+            18
+          ]
+        },
+        {
+          "id": "uc_q65",
+          "query": "What vote is required to expel a member of Congress under Article I, Section 5?",
+          "ground_truth_answer": "Article I, Section 5 provides that each house may, with the concurrence of two-thirds of members, expel a member. A simple majority may punish members for disorderly behavior. The two-thirds supermajority requirement for expulsion makes it a rarely used, drastic measure.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "id": "attention_paper",
+      "filename": "attention_paper.pdf",
+      "category": "small_academic",
+      "pages": 15,
+      "description": "Attention Is All You Need (Vaswani et al., 2017). The seminal Transformer paper from NeurIPS. Dense academic text with formulas and tables.",
+      "questions": [
+        {
+          "id": "ai_q1",
+          "query": "What optimizer was used to train the Transformer model, and what were the beta parameter values?",
+          "ground_truth_answer": "The Transformer model was trained using the Adam optimizer with beta parameters β₁ = 0.9, β₂ = 0.98, and ε = 10⁻⁹.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            7
+          ]
+        },
+        {
+          "id": "ai_q2",
+          "query": "What BLEU scores did the Transformer (big) model achieve on the WMT 2014 English-to-German and English-to-French translation tasks?",
+          "ground_truth_answer": "On WMT 2014 English-to-German, the Transformer achieved a BLEU score of 28.4, surpassing previous state-of-the-art by over 2 BLEU points. On WMT 2014 English-to-French, it established a new single-model state-of-the-art BLEU score of 41.8.",
+          "question_type": "numerical",
+          "difficulty": "medium",
+          "relevant_pages": [
+            1,
+            8
+          ]
+        },
+        {
+          "id": "ai_q3",
+          "query": "Given that the base Transformer model uses d_model = 512 and 8 attention heads, what is the dimensionality of each head's key and value vectors, and how does this relate to the feed-forward network's inner layer dimension?",
+          "ground_truth_answer": "With d_model = 512 and h = 8 attention heads, each head operates on d_k = d_v = d_model / h = 512 / 8 = 64 dimensions for keys and values. The position-wise feed-forward network has an inner layer dimension of d_ff = 2048, which is 4 times d_model. The FFN consists of two linear transformations with a ReLU activation: FFN(x) = max(0, xW₁ + b₁)W₂ + b₂.",
+          "question_type": "multi_hop",
+          "difficulty": "hard",
+          "relevant_pages": [
+            5
+          ]
+        },
+        {
+          "id": "ai_q4",
+          "query": "List all the regularization techniques used during training of the Transformer model.",
+          "ground_truth_answer": "Three regularization techniques were used: (1) Residual Dropout — dropout rate of 0.1 applied to the output of each sub-layer before addition and normalization, and to the sums of embeddings and positional encodings. (2) Label Smoothing — with value ε_ls = 0.1, which hurts perplexity but improves accuracy and BLEU score. (3) Attention Dropout — dropout applied to attention weights at rate 0.1.",
+          "question_type": "list_extraction",
+          "difficulty": "medium",
+          "relevant_pages": [
+            7,
+            8
+          ]
+        },
+        {
+          "id": "ai_q5",
+          "query": "How does the Transformer model encode information about the order of tokens in a sequence, given that it uses no recurrence or convolution?",
+          "ground_truth_answer": "The Transformer uses sinusoidal positional encodings added to the input embeddings. The encodings use sine and cosine functions of different frequencies: PE(pos, 2i) = sin(pos / 10000^(2i/d_model)) and PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model)). This allows the model to learn to attend by relative positions, since PE(pos+k) can be represented as a linear function of PE(pos). The positional encodings have the same dimension d_model = 512 as the embeddings so they can be summed.",
+          "question_type": "paraphrase",
+          "difficulty": "medium",
+          "relevant_pages": [
+            6
+          ]
+        },
+        {
+          "id": "ai_q6",
+          "query": "How does the training cost of the Transformer base model compare to its BLEU score improvements over prior models?",
+          "ground_truth_answer": "The Transformer base model was trained on 8 P100 GPUs for approximately 12 hours (3.5 days for the big model). Despite this relatively modest training cost compared to prior RNN/CNN architectures, it achieved BLEU of 28.4 on EN-DE (surpassing all prior models by over 2 BLEU) and 41.8 on EN-FR (new single-model SOTA). The high parallelizability of attention eliminated sequential computation inherent in RNNs, enabling faster training with superior quality.",
+          "question_type": "cross_page",
+          "difficulty": "hard",
+          "relevant_pages": [
+            1,
+            7,
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rfc9112_http",
+      "filename": "rfc9112_http.pdf",
+      "category": "medium_technical",
+      "pages": 46,
+      "description": "RFC 9112: HTTP/1.1 Message Syntax and Routing. Technical specification with formal ABNF grammar.",
+      "questions": [
+        {
+          "id": "rfc_q1",
+          "query": "What is the general syntax for an HTTP/1.1 message as defined in RFC 9112?",
+          "ground_truth_answer": "The general syntax is: HTTP-message = start-line CRLF *( field-line CRLF ) CRLF [ message-body ]. An HTTP message consists of: (1) a start-line (request-line for requests or status-line for responses) followed by CRLF, (2) zero or more header field lines each followed by CRLF, (3) an empty line (CRLF) marking end of headers, and (4) an optional message body.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            6
+          ]
+        },
+        {
+          "id": "rfc_q2",
+          "query": "What are the four request-target forms defined in RFC 9112, and which HTTP method uses the authority-form?",
+          "ground_truth_answer": "The four request-target forms are: (1) origin-form — absolute path with optional query (e.g., /index.html?id=1), used for most requests; (2) absolute-form — complete URI including scheme, used for proxy requests; (3) authority-form — host and port only (e.g., www.example.com:80), used exclusively with the CONNECT method for tunneling; (4) asterisk-form — a single asterisk (*), typically used with OPTIONS method for server-wide queries.",
+          "question_type": "list_extraction",
+          "difficulty": "medium",
+          "relevant_pages": [
+            9,
+            10,
+            11,
+            12
+          ]
+        },
+        {
+          "id": "rfc_q3",
+          "query": "What is the order of precedence for determining message body length in HTTP/1.1?",
+          "ground_truth_answer": "The precedence order is: (1) Responses to HEAD requests and 1xx/204/304 status codes have no body. (2) If Transfer-Encoding is present with chunked as final encoding, body is delimited by zero-length chunk. (3) If Content-Length is present (without Transfer-Encoding), body length equals the Content-Length value in octets. (4) If neither is present, body is terminated by connection close.",
+          "question_type": "technical",
+          "difficulty": "hard",
+          "relevant_pages": [
+            19,
+            20
+          ]
+        },
+        {
+          "id": "rfc_q4",
+          "query": "Does RFC 9112 require HTTP/1.1 connections to be closed after each request-response exchange?",
+          "ground_truth_answer": "No. HTTP/1.1 uses persistent connections by default, meaning connections remain open for multiple request-response exchanges. A connection is assumed persistent unless a 'Connection: close' header is sent. This differs from HTTP/1.0 where connections were non-persistent by default.",
+          "question_type": "negation",
+          "difficulty": "easy",
+          "relevant_pages": [
+            26,
+            27
+          ]
+        },
+        {
+          "id": "rfc_q5",
+          "query": "How does RFC 9112 address request smuggling when both Transfer-Encoding and Content-Length headers are present?",
+          "ground_truth_answer": "RFC 9112 (which obsoletes RFC 7230) specifies that if both Transfer-Encoding and Content-Length are present, Transfer-Encoding MUST override Content-Length. Alternatively, an implementation SHOULD treat such a message as an error to mitigate request smuggling and response splitting attacks, preventing attackers from exploiting ambiguity between intermediaries.",
+          "question_type": "cross_page",
+          "difficulty": "hard",
+          "relevant_pages": [
+            18,
+            19
+          ]
+        }
+      ]
+    },
+    {
+      "id": "who_physical_activity",
+      "filename": "who_physical_activity.pdf",
+      "category": "medium_mixed",
+      "pages": 104,
+      "description": "WHO 2020 Guidelines on Physical Activity and Sedentary Behaviour. Mixed formatting with tables, bullet lists, and recommendations by age group.",
+      "questions": [
+        {
+          "id": "who_q1",
+          "query": "How much moderate-intensity aerobic physical activity per week is recommended for adults aged 18-64 according to the WHO 2020 guidelines?",
+          "ground_truth_answer": "Adults aged 18-64 should do at least 150-300 minutes of moderate-intensity aerobic physical activity per week, or at least 75-150 minutes of vigorous-intensity activity, or an equivalent combination. Additionally, adults should do muscle-strengthening activities involving all major muscle groups on 2 or more days per week.",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            12,
+            13,
+            42
+          ]
+        },
+        {
+          "id": "who_q2",
+          "query": "How many minutes of physical activity per day does the WHO recommend for children aged 5-17, and how many days per week should include muscle-strengthening activities?",
+          "ground_truth_answer": "Children and adolescents aged 5-17 should do an average of at least 60 minutes per day of moderate-to-vigorous intensity aerobic physical activity across the week. Vigorous-intensity aerobic activities and muscle- and bone-strengthening activities should be incorporated at least 3 days per week.",
+          "question_type": "numerical",
+          "difficulty": "easy",
+          "relevant_pages": [
+            11,
+            39
+          ]
+        },
+        {
+          "id": "who_q3",
+          "query": "What does the WHO 2020 guidelines document recommend regarding sedentary behaviour and recreational screen time for children and adolescents?",
+          "ground_truth_answer": "Children and adolescents should limit the amount of time spent being sedentary, particularly the amount of recreational screen time (strong recommendation, low certainty evidence). In children and adolescents, higher amounts of sedentary behaviour are associated with poor health outcomes including increased adiposity, poorer cardiometabolic health and fitness, poorer behavioural conduct/pro-social behaviour, and reduced sleep duration.",
+          "question_type": "list_extraction",
+          "difficulty": "medium",
+          "relevant_pages": [
+            11,
+            39
+          ]
+        },
+        {
+          "id": "who_q4",
+          "query": "How do the physical activity recommendations for older adults (65+) compare to those for general adults (18-64)?",
+          "ground_truth_answer": "The aerobic recommendations for older adults (65+) are the same as general adults (18-64): at least 150-300 minutes moderate or 75-150 minutes vigorous per week, plus muscle-strengthening on 2+ days. However, the WHO adds a specific recommendation for older adults: they should perform varied multicomponent physical activity emphasizing functional balance and strength training on 3 or more days per week to enhance functional capacity and prevent falls.",
+          "question_type": "multi_hop",
+          "difficulty": "medium",
+          "relevant_pages": [
+            12,
+            14,
+            15,
+            53
+          ]
+        },
+        {
+          "id": "who_q5",
+          "query": "What do the WHO 2020 guidelines say about the relationship between any amount of physical activity and health benefits?",
+          "ground_truth_answer": "The WHO guidelines emphasize that 'some physical activity is better than none.' Even if individuals cannot meet the specific recommended thresholds, any amount provides health benefits. Replacing sedentary time with physical activity of any intensity — including light intensity — yields health benefits. More physical activity provides additional benefits.",
+          "question_type": "paraphrase",
+          "difficulty": "easy",
+          "relevant_pages": [
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "id": "who_q6",
+          "query": "Do the WHO 2020 guidelines specify a maximum number of sedentary hours per day that should not be exceeded?",
+          "ground_truth_answer": "No, the WHO 2020 guidelines do not specify a maximum number of sedentary hours or a quantitative threshold for sedentary time for adults. While they recommend limiting sedentary time and replacing it with physical activity, the Guideline Development Group concluded there is insufficient evidence to set a quantified, time-based recommendation for sedentary behaviour.",
+          "question_type": "negation",
+          "difficulty": "medium",
+          "relevant_pages": [
+            12,
+            50
+          ]
+        }
+      ]
+    },
+    {
+      "id": "think_python",
+      "filename": "think_python.pdf",
+      "category": "large_formatted",
+      "pages": 244,
+      "description": "Think Python 2nd Edition by Allen Downey. Well-structured programming textbook with code examples, exercises, and glossaries.",
+      "questions": [
+        {
+          "id": "tp_q1",
+          "query": "According to Think Python, what is an interpreter?",
+          "ground_truth_answer": "Think Python introduces the Python interpreter as a program that reads and executes Python code -- you start it by clicking an icon or by typing `python` on a command line. The book's glossary (Section 1.8) gives the formal definition: an interpreter is 'a program that reads another program and executes it.'",
+          "question_type": "factual_lookup",
+          "difficulty": "easy",
+          "relevant_pages": [
+            24,
+            28
+          ]
+        },
+        {
+          "id": "tp_q2",
+          "query": "What are the differences between natural languages and formal languages as described in Chapter 1 of Think Python?",
+          "ground_truth_answer": "Natural languages are languages that people speak (such as English, Spanish, French) that evolved naturally. They are characterized by ambiguity, redundancy, and idioms. Formal languages are designed by people for specific applications, like mathematical notation, chemical formulas, and programming languages. Formal languages are unambiguous (every statement has exactly one meaning regardless of context) and literal. They have strict syntax rules about tokens (basic elements) and structure (how tokens are arranged).",
+          "question_type": "paraphrase",
+          "difficulty": "medium",
+          "relevant_pages": [
+            26,
+            27,
+            28
+          ]
+        },
+        {
+          "id": "tp_q3",
+          "query": "In Think Python, what is the result of evaluating 105 // 60 and 105 % 60 in Python, and what are these operators called?",
+          "ground_truth_answer": "The expression 105 // 60 evaluates to 1, using the floor division operator (//) which divides two numbers and rounds down to the nearest integer. The expression 105 % 60 evaluates to 45, using the modulus operator (%) which divides two numbers and returns the remainder. The book uses these examples for converting minutes to hours: 105 minutes is 1 hour and 45 minutes.",
+          "question_type": "numerical",
+          "difficulty": "easy",
+          "relevant_pages": [
+            61
+          ]
+        },
+        {
+          "id": "tp_q4",
+          "query": "How does Think Python define 'gather' and 'scatter' in the context of function arguments and tuples?",
+          "ground_truth_answer": "'Gather' refers to collecting a variable number of arguments into a single tuple using the asterisk (*) operator in a function parameter (e.g., def func(*args)). This allows the function to be called with any number of arguments, accessible as the tuple 'args'. 'Scatter' is the complement — passing a sequence as separate arguments using * during the function call. For example, if t = (7, 3), calling divmod(*t) scatters the tuple so the function receives 7 and 3 as two distinct arguments.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            140,
+            145
+          ]
+        },
+        {
+          "id": "tp_q5",
+          "query": "What is a 'pure function' versus a 'modifier' as defined in Think Python, and what example class illustrates these concepts?",
+          "ground_truth_answer": "The Time class is used to illustrate these concepts. A 'pure function' does not modify any objects passed as arguments; it creates and returns a new object. For example, add_time(t1, t2) is 'pure' if it creates a new Time object for the sum without changing t1 or t2. A 'modifier' modifies the objects passed to it — like an increment function that updates a Time object's attributes directly. The chapter introduces the 'prototype and patch' development plan.",
+          "question_type": "cross_page",
+          "difficulty": "medium",
+          "relevant_pages": [
+            178,
+            179,
+            180
+          ]
+        },
+        {
+          "id": "tp_q6",
+          "query": "According to Think Python, why can't lists be used as dictionary keys, while tuples can?",
+          "ground_truth_answer": "Dictionaries use a hashtable internally. Keys must be hashable — the hash function takes the key and returns a constant integer. Immutable types (integers, floats, strings, tuples) can be keys because their hash values never change. Mutable types like lists cannot be keys because modifying a list would change its hash value, breaking the dictionary's lookup mechanism.",
+          "question_type": "multi_hop",
+          "difficulty": "hard",
+          "relevant_pages": [
+            130,
+            134,
+            142
+          ]
+        },
+        {
+          "id": "tp_q7",
+          "query": "List the class hierarchy used in Think Python Chapter 18 to demonstrate inheritance with playing cards.",
+          "ground_truth_answer": "Chapter 18 uses: (1) Card — represents a single playing card with 'suit' and 'rank' attributes; (2) Deck — a collection of Card objects that can be shuffled, dealt, or sorted; (3) Hand — a subclass of Deck representing a player's hand (subset of cards); (4) PokerHand — a subclass of Hand with poker evaluation logic including methods like has_flush, has_pair, has_twopair, and has_fullhouse, using histograms to count rank and suit occurrences.",
+          "question_type": "list_extraction",
+          "difficulty": "hard",
+          "relevant_pages": [
+            193,
+            198,
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "id": "newton_principia",
+      "filename": "newton_principia.pdf",
+      "category": "very_large_dense",
+      "pages": 594,
+      "description": "Newton's Principia Mathematica (Motte translation). Very large, dense text with archaic language, mathematical propositions, and complex formatting.",
+      "questions": [
+        {
+          "id": "np_q1",
+          "query": "List all eight definitions that Newton provides at the beginning of the Principia.",
+          "ground_truth_answer": "Newton's eight definitions are: Definition I — Quantity of matter (mass), arising from density and bulk conjointly. Definition II — Quantity of motion (momentum), arising from velocity and quantity of matter. Definition III — Vis insita or innate force of matter (inertia), power of resisting change in state. Definition IV — Impressed force, action exerted to change a body's state. Definition V — Centripetal force, drawing bodies toward a centre. Definition VI — Absolute quantity of centripetal force. Definition VII — Accelerative quantity of centripetal force. Definition VIII — Motive quantity of centripetal force.",
+          "question_type": "list_extraction",
+          "difficulty": "hard",
+          "relevant_pages": [
+            79,
+            80,
+            81,
+            82,
+            83
+          ]
+        },
+        {
+          "id": "np_q2",
+          "query": "State Newton's three Laws of Motion as given in the Principia.",
+          "ground_truth_answer": "Law I: 'Every body perseveres in its state of rest, or of uniform motion in a right line, unless it is compelled to change that state by forces impressed thereon.' Law II: 'The alteration of motion is ever proportional to the motive force impressed; and is made in the direction of the right line in which that force is impressed.' Law III: 'To every action there is always opposed an equal reaction: or the mutual actions of two bodies upon each other are always equal, and directed to contrary parts.'",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            89
+          ]
+        },
+        {
+          "id": "np_q3",
+          "query": "What does Corollary I to the Laws of Motion state, and what physical principle does it establish?",
+          "ground_truth_answer": "Corollary I states: 'A body by two forces conjoined will describe the diagonal of a parallelogram, in the same time that it would describe the sides, by those forces apart.' This establishes the parallelogram of forces (the principle of superposition of forces and motions). A body at point A acted upon by two forces — Force M toward B and Force N toward C — arrives at point D along the diagonal AD of parallelogram ABCD.",
+          "question_type": "multi_hop",
+          "difficulty": "hard",
+          "relevant_pages": [
+            90
+          ]
+        },
+        {
+          "id": "np_q4",
+          "query": "What are the three books of Newton's Principia about, and how do they relate to each other?",
+          "ground_truth_answer": "Book I focuses on motion in unresisting (vacuum) spaces, establishing the mathematical framework for centripetal forces and orbits. Book II extends to motion in resisting media (fluids), and Newton used it to challenge Descartes' Theory of Vortices. Book III (The System of the World) applies the mathematical propositions from Books I and II to the actual physical universe, including universal gravitation, planetary motions, comets, and tides, concluding with the General Scholium.",
+          "question_type": "cross_page",
+          "difficulty": "medium",
+          "relevant_pages": [
+            41,
+            101,
+            257,
+            387
+          ]
+        },
+        {
+          "id": "np_q5",
+          "query": "State the four Rules of Reasoning in Philosophy from Book III of the Principia.",
+          "ground_truth_answer": "Rule I: 'We are to admit no more causes of natural things than such as are both true and sufficient to explain their appearances.' Rule II: 'To the same natural effects we must, as far as possible, assign the same causes.' Rule III: 'The qualities of bodies which admit neither intensification nor remission of degrees, and which are found to belong to all bodies within the reach of our experiments, are to be esteemed the universal qualities of all bodies whatsoever.' Rule IV: 'In experimental philosophy we are to look upon propositions inferred by general induction from phenomena as accurately or very nearly true, notwithstanding any contrary hypotheses that may be imagined.'",
+          "question_type": "list_extraction",
+          "difficulty": "hard",
+          "relevant_pages": [
+            390,
+            391
+          ]
+        },
+        {
+          "id": "np_q6",
+          "query": "What does Newton mean by 'hypotheses non fingo' in the General Scholium?",
+          "ground_truth_answer": "Motte translates 'hypotheses non fingo' as 'I frame no hypotheses.' The full passage states Newton was unable to discover the cause of gravity from phenomena, and 'whatever is not deduced from the phenomena is to be called an hypothesis; and hypotheses, whether metaphysical or physical, have no place in experimental philosophy. In this philosophy particular propositions are inferred from the phenomena, and afterwards rendered general by induction.' Newton defended his methodology of deriving mathematical laws from observable phenomena without speculating on mechanical causes for gravity.",
+          "question_type": "paraphrase",
+          "difficulty": "hard",
+          "relevant_pages": [
+            512
+          ]
+        }
+      ]
+    },
+    {
+      "id": "art_of_war",
+      "filename": "art_of_war.pdf",
+      "category": "medium_archaic",
+      "pages": 130,
+      "description": "The Art of War by Sun Tzu (public domain translation). Archaic military strategy text with philosophical language.",
+      "questions": [
+        {
+          "id": "aw_q1",
+          "query": "What are the five constant factors governing the art of war according to Sun Tzu in Chapter 1?",
+          "ground_truth_answer": "The five constant factors are: (1) The Moral Law — causes the people to be in complete accord with their ruler, so they will follow regardless of danger; (2) Heaven — signifies night and day, cold and heat, times and seasons; (3) Earth — comprises distances, danger and security, open ground and narrow passes; (4) The Commander — the virtues of wisdom, sincerity, benevolence, courage, and strictness; (5) Method and Discipline — the marshaling of the army, graduations of rank, maintenance of roads, and control of military expenditure.",
+          "question_type": "list_extraction",
+          "difficulty": "medium",
+          "relevant_pages": [
+            30,
+            31
+          ]
+        },
+        {
+          "id": "aw_q2",
+          "query": "What does Sun Tzu say constitutes 'supreme excellence' in Chapter 3?",
+          "ground_truth_answer": "Sun Tzu states: 'Hence to fight and conquer in all your battles is not supreme excellence; supreme excellence consists in breaking the enemy's resistance without fighting.' He outlines a hierarchy: (1) The highest form is to balk (frustrate) the enemy's plans; (2) Next is to prevent the junction of the enemy's forces; (3) Next is to attack the enemy's army in the field; (4) The worst policy is to besiege walled cities.",
+          "question_type": "factual_lookup",
+          "difficulty": "medium",
+          "relevant_pages": [
+            38
+          ]
+        },
+        {
+          "id": "aw_q3",
+          "query": "What are the five classes of spies described by Sun Tzu in Chapter 13?",
+          "ground_truth_answer": "The five classes are: (1) Local spies — employing inhabitants of a district; (2) Inward spies — making use of officials of the enemy; (3) Converted spies — getting hold of enemy's spies and using them for our own purposes; (4) Doomed spies — doing certain things openly for deception, allowing our spies to report them to the enemy; (5) Surviving spies — those who bring back news from the enemy's camp. When all five work together, it is called the 'divine manipulation of the threads.'",
+          "question_type": "list_extraction",
+          "difficulty": "medium",
+          "relevant_pages": [
+            124,
+            125
+          ]
+        },
+        {
+          "id": "aw_q4",
+          "query": "How does Sun Tzu use the analogy of water to describe military strategy?",
+          "ground_truth_answer": "In Chapter 6 (Weak Points and Strong), Sun Tzu compares army movement to water: just as water avoids heights and rushes downward, an army should avoid the enemy's strengths and strike at weaknesses. Water adapts to terrain and has no constant shape; similarly, a general must change tactics based on the enemy's situation. Military force should be as fluid and unstoppable as a rushing torrent. This 'formlessness' is a core principle: by being unpredictable and adaptive, you dictate the terms of engagement.",
+          "question_type": "paraphrase",
+          "difficulty": "hard",
+          "relevant_pages": [
+            59
+          ]
+        },
+        {
+          "id": "aw_q5",
+          "query": "How does the strategic hierarchy in Chapter 3 relate to the tactical principles in Chapter 6 of The Art of War?",
+          "ground_truth_answer": "Chapter 3 establishes that the highest generalship is to frustrate enemy plans without fighting, with besieging cities as the worst policy. Chapter 6 provides tactical implementation: 'Appear at points which the enemy must hasten to defend; march swiftly to places where you are not expected.' Both share the principle of avoiding direct confrontation with enemy strength. Chapter 3 sets the strategic hierarchy (balk plans > isolate forces > attack in field > besiege cities), while Chapter 6 gives the method — striking at weak points and forcing the enemy to react to you achieves the Chapter 3 ideal.",
+          "question_type": "cross_page",
+          "difficulty": "hard",
+          "relevant_pages": [
+            38,
+            59
+          ]
+        }
+      ]
+    }
+  ]
+}

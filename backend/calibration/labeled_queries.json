@@ -1,0 +1,2378 @@
+{
+  "_description": "Hand-labeled routing dataset. Each entry maps a query to the agent that SHOULD handle it (gold_agent). 'none' means no specialist agent should fire (general fallback is correct). context flags (has_documents, has_data_file) emulate session state for detectors that depend on it.",
+  "_version": "1.0",
+  "examples": [
+    {
+      "query": "Solve for x: 2x + 5 = 11",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What is the derivative of sin(x) * x^2?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Calculate the area of a circle with radius 7",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Simplify (3x^2 + 6x) / 3x",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Find the integral of e^x dx from 0 to 1",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What is the probability of rolling two sixes in a row?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Compute the GCD of 48 and 18",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Factor the polynomial x^2 - 9",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What is the mean and variance of [2, 4, 4, 4, 5, 5, 7, 9]?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Evaluate the limit of (1 + 1/n)^n as n approaches infinity",
+      "gold_agent": "math"
+    },
+    {
+      "query": "If a triangle has angles 30 and 60 degrees, what is the third angle?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What's 17 * 23?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Write a Python function to reverse a linked list",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Debug this code:\n```python\ndef add(a, b):\n  return a - b\n```",
+      "gold_agent": "code"
+    },
+    {
+      "query": "I'm getting a Traceback (most recent call last): TypeError: unsupported operand type",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Convert this JavaScript function to TypeScript",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Explain this code and what it does:\n```python\nfor i in range(10):\n  print(i)\n```",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Refactor this SQL query to use a JOIN instead of a subquery",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Optimize this Rust function for performance",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a bash script to back up a directory every night",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Fix the ReferenceError in my JavaScript code",
+      "gold_agent": "code"
+    },
+    {
+      "query": "What does this Go function do?",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a function in Python that checks if a number is prime",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Analyze the trend in monthly sales from the uploaded csv",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the correlation between column A and column B?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Plot the distribution of ages in this dataset",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What's the average value in the revenue column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Show me the top 5 customers by total spend",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "How many rows have missing values?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the max and min of the price column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Compare columns revenue and cost over time",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "According to this document, who is the project manager for Alpha?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Summarize the key findings in this paper",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about quarterly revenue targets?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Extract all the dates mentioned in this PDF",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is on page 12 of this paper?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'risk' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Give me the table of contents for this paper",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Compare sections 2 and 4 of this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Write a cover letter for a software engineering internship",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Draft a professional email to my manager requesting time off",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Rewrite this paragraph to sound more formal",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Proofread this essay and fix grammar mistakes",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Can you make this blog post more concise?",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a short report summarizing our team's Q1 achievements",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Edit this text for clarity and tone: 'we beleive that our product are good and customer like it alot'",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Expand this outline into a full essay about climate change policy",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Rephrase this sentence to avoid passive voice",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "What is the latest news on the OpenAI vs Microsoft partnership?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current state of quantum computing research?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me an overview of recent developments in battery technology this year",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What happened in the stock market today?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Compare the pros and cons of nuclear energy vs solar energy in 2026",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the update on the India-US trade deal this week?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me the history of the internet and how it evolved, including the most recent developments",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the recent progress on fusion energy projects?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is photosynthesis?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain how neural networks work",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is the difference between TCP and UDP?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Define entropy in thermodynamics",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is the concept of recursion in programming?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "How does the human immune system work?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What's the meaning of opportunity cost in economics?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain the difference between supervised and unsupervised learning",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What are black holes?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Compare mitosis and meiosis",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Hi, how are you?",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Thanks, that was really helpful!",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Can you remember what we talked about earlier?",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Tell me a joke",
+      "gold_agent": "none"
+    },
+    {
+      "query": "okay sounds good",
+      "gold_agent": "none"
+    },
+    {
+      "query": "What's your name?",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Let's continue from where we left off",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Good morning!",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Can you help me plan my day tomorrow?",
+      "gold_agent": "none"
+    },
+    {
+      "query": "I need a function to calculate the average of a list in Python",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Solve this quadratic: x^2 - 5x + 6 = 0 and explain each step",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What's the latest version of Python and what changed?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Explain how does a transformer model work in deep learning",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Write an essay comparing renewable and non-renewable energy sources",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "What does this traceback mean: ValueError: invalid literal for int()",
+      "gold_agent": "code"
+    },
+    {
+      "query": "How many unique values are there in the category column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is this document about overall?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "integrate x^2 dx",
+      "gold_agent": "math"
+    },
+    {
+      "query": "\\frac{d}{dx} x^3",
+      "gold_agent": "math"
+    },
+    {
+      "query": "log_2(8) = ?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "what is sin(30) + cos(60)",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Write a function to compute factorial of n recursively in Python",
+      "gold_agent": "code"
+    },
+    {
+      "query": "fix grammar in this paragraph please, it has many mistakes and needs to be polished for a formal report submission to my professor for review",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "What's the current state of the war in the news today?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "today's top news headlines",
+      "gold_agent": "research"
+    },
+    {
+      "query": "explain how does encryption work",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is the trend in the sales column over the last 12 months?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Summarize this pdf in 3 bullet points",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Can you write a poem about the ocean",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "What's 2+2",
+      "gold_agent": "math"
+    },
+    {
+      "query": "convert this python code to java",
+      "gold_agent": "code"
+    },
+    {
+      "query": "what is the meaning of life",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "explain quantum entanglement",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "what's the weather like",
+      "gold_agent": "none"
+    },
+    {
+      "query": "can you repeat that",
+      "gold_agent": "none"
+    },
+    {
+      "query": "draft a LinkedIn post announcing my new job",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "find all the function definitions in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "what's the recent update on India's GDP growth this year",
+      "gold_agent": "research"
+    },
+    {
+      "query": "calculate the standard deviation of these numbers: 4, 8, 15, 16, 23, 42",
+      "gold_agent": "math"
+    },
+    {
+      "query": "explain the difference between a stack and a queue",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "what is the latest iPhone model and its specs",
+      "gold_agent": "research"
+    },
+    {
+      "query": "show me the correlation matrix for all numeric columns",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "improve the flow and tone of this introduction paragraph for my thesis",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "what page discusses the methodology in this paper",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "write a sql query to refactor this nested subquery into a join",
+      "gold_agent": "code"
+    },
+    {
+      "query": "explain this stacktrace and how to fix it",
+      "gold_agent": "code"
+    },
+    {
+      "query": "what is 15 percent of 240",
+      "gold_agent": "math"
+    },
+    {
+      "query": "compare the concept of TCP vs UDP",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "give me an overview of the history of artificial intelligence including the most recent breakthroughs this year",
+      "gold_agent": "research"
+    },
+    {
+      "query": "expand this bullet point into a full paragraph for my report",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "thanks a lot, see you later",
+      "gold_agent": "none"
+    },
+    {
+      "query": "what's up",
+      "gold_agent": "none"
+    },
+    {
+      "query": "If a square has side length 7, what is its area?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "If a square has side length 5, what is its area?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Solve for y: 3y + 6 = 27",
+      "gold_agent": "math"
+    },
+    {
+      "query": "If a circle has radius 9, what is its circumference?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Solve for y: 8y + 21 = 77",
+      "gold_agent": "math"
+    },
+    {
+      "query": "If a square has side length 9, what is its area?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Find the sum of the first 10 positive integers",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What is the derivative of cos(x) * x?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "If a square has side length 10, what is its area?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What is the probability of getting at least one head in two coin flips?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Evaluate 7! / 6!",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Calculate the area of a circle with radius 6",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Find the integral of x^2 dx from 0 to 3",
+      "gold_agent": "math"
+    },
+    {
+      "query": "If a square has side length 4, what is its area?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Solve x^2 - 4x - 12 = 0",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What's 144 divided by 12?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Evaluate 6! / 5!",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Evaluate 12! / 11!",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Solve for x: 7x + 11 = 60",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Simplify (6x^2 + 12x) / 6x",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Calculate the area of a circle with radius 10",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Solve for n: n/4 + 3 = 11",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Calculate the area of a circle with radius 9",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Simplify (8x^2 + 16x) / 8x",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Find the sum of the first 12 positive integers",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Solve for y: 7y + 20 = 69",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Find x if 3x - 5 = 12",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Solve for y: 4y + 9 = 37",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Solve for y: 5y + 12 = 47",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What's 19 * 27?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What is the LCM of 12 and 18?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What is the derivative of x^3 + 4x^2?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Solve for y: 6y + 15 = 57",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Find the sum of the first 7 positive integers",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Find x if 6x - 9 = 36",
+      "gold_agent": "math"
+    },
+    {
+      "query": "How many ways can 5 books be arranged on a shelf?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Find the sum of the first 8 positive integers",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Solve for x: 4x + 7 = 29",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Solve the system: x + y = 10 and x - y = 2",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Simplify (2x^2 + 4x) / 2x",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Simplify (4x^2 + 8x) / 4x",
+      "gold_agent": "math"
+    },
+    {
+      "query": "What is the GCD of 84 and 36?",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Calculate the area of a triangle with base 14 and height 9",
+      "gold_agent": "math"
+    },
+    {
+      "query": "Fix the off-by-one error in this loop",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a bash script to rename all .txt files in a folder",
+      "gold_agent": "code"
+    },
+    {
+      "query": "I'm getting a SyntaxError in Python after an if statement",
+      "gold_agent": "code"
+    },
+    {
+      "query": "How would you debug a loop that runs forever in Python?",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a shell script to monitor disk usage and alert at 80 percent",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a SQL query to get the second highest salary",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Convert this python function to TypeScript",
+      "gold_agent": "code"
+    },
+    {
+      "query": "How do I parse JSON in Rust?",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to check whether a list is sorted",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a function in TypeScript to validate an email",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Refactor this SQL query to use window functions",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to compute the factorial of 3",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Convert this ruby function to TypeScript",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Convert this JavaScript code to Python",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to compute the factorial of 4",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to compute the factorial of 5",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a SQL query to find duplicate customer emails",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Explain this code and its output:\n```rust\nfn main() {\n    let v = vec![1,2,3];\n    println!(\"{}\", v[5]);\n}\n```",
+      "gold_agent": "code"
+    },
+    {
+      "query": "What does this traceback mean: IndexError: list index out of range",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Explain this code and its output:\n```python\nfor i in range(3):\n    print(i)\n```",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to merge two dictionaries",
+      "gold_agent": "code"
+    },
+    {
+      "query": "How do I read a CSV file in pandas?",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to compute the factorial of 9",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to compute the factorial of 1",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Convert this go function to TypeScript",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to compute the factorial of 7",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Debug this code:\n```python\ndef multiply(a, b):\n    return a / b\n```",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Convert this Python function to Java:\n```python\ndef square(n):\n    return n * n\n```",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a function in Python that returns Fibonacci numbers recursively",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to compute the factorial of 6",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Explain what this code does:\n```python\nitems = [x for x in range(5) if x % 2 == 0]\n```",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Debug this code:\n```javascript\nfunction sum(a, b) {\n  return a + c;\n}\n```",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Explain what this Go function does",
+      "gold_agent": "code"
+    },
+    {
+      "query": "I'm getting a NullPointerException in Java. What does it mean?",
+      "gold_agent": "code"
+    },
+    {
+      "query": "How can I avoid a race condition in multithreaded code?",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to compute the factorial of 8",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Convert this javascript function to TypeScript",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Explain this code and its output:\n```sql\nSELECT * FROM users WHERE id IN (SELECT id FROM orders);\n```",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to compute the factorial of 2",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Refactor this code to use a class instead of global variables",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a JavaScript function to remove duplicates from an array",
+      "gold_agent": "code"
+    },
+    {
+      "query": "What is wrong with this C++ code that segfaults?",
+      "gold_agent": "code"
+    },
+    {
+      "query": "What's the difference between pass by value and pass by reference in C++?",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Explain this code and its output:\n```go\nfunc main() {\n    var s []int\n    fmt.Println(s[0])\n}\n```",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Write a Python function to count vowels in a string",
+      "gold_agent": "code"
+    },
+    {
+      "query": "Optimize this function for time complexity",
+      "gold_agent": "code"
+    },
+    {
+      "query": "What is the median of the quantity column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Find the bottom 10 rows by cost",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Identify the top 10 products by revenue",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Show me the top 5 rows by revenue",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "How many missing values are there in the revenue column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the average value in the sales column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "How many missing values are there in the sales column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "How many missing values are there in the profit column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the median of the cost column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Find the bottom 5 rows by sales",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the median of the sales column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the median of the rating column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the median of the price column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the median of the profit column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the average value in the quantity column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Which customers purchased the most items?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Show me the top 10 rows by price",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "List the records with missing values in any column",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Which category has the highest average profit?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Find the bottom 3 rows by rating",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Compare average cost across each product category",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Group the data by region and calculate total revenue",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Can you summarize the dataset's key statistics?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What are the minimum and maximum values in each numeric column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "How many rows are in the uploaded spreadsheet?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the relationship between revenue and profit?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Break down sales by quarter and region",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Show the standard deviation of the rating column",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the median of the revenue column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Filter the dataset to rows where age is greater than 30",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the average value in the revenue column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Find the bottom 20 rows by age",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the average value in the cost column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "How many missing values are there in the age column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Show me the top 20 rows by sales",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Show me the top 3 rows by price",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the average value in the profit column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the average value in the age column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "How many missing values are there in the quantity column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Create a line chart for revenue by month",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the sum of the profit column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Which rows have the highest sales by region?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "How many missing values are there in the cost column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Find the outliers in the sales data",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the median of the age column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the average value in the price column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "How many missing values are there in the rating column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "How many missing values are there in the price column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What is the average value in the rating column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What percentage of entries are missing in the age column?",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "Show me the correlation matrix for all numeric columns",
+      "gold_agent": "data",
+      "context": {
+        "has_data_file": true
+      }
+    },
+    {
+      "query": "What does page 5 say about deliverables?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all the function definitions in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Extract all names mentioned in this report",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 2 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What tables are included in this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'table of contents' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about the next steps?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'methodology' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'appendix' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'budget' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What are the key dates mentioned in the contract?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 9 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'executive summary' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 10 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 15 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 3 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'references' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about executive summary?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What page discusses the methodology in this paper",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Compare the introduction and conclusion",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'timeline' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 1 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 5 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is the main conclusion of the paper?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 7 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'quarterly revenue targets' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about budget?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about findings?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find every reference to compliance in this policy document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'project plan' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about timeline?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Which section discusses the budget assumptions?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about project plan?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'recommendations' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 4 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about risk factors?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'findings' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about references?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about table of contents?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about appendix?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the appendix say about the data source?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Find all mentions of 'risk factors' in this document",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about recommendations?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Who signed this agreement?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "How many pages does this document have?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What does the document say about methodology?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 12 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Which section discusses limitations?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 6 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "What is discussed on page 8 of this document?",
+      "gold_agent": "document",
+      "context": {
+        "has_documents": true
+      }
+    },
+    {
+      "query": "Draft a professional email to my recruiter requesting a meeting",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a short report summarizing our remote work policy",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Summarize this meeting update in a professional tone",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Turn these notes into a polished executive summary",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a persuasive message asking for a deadline extension",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a short report summarizing our conference recap",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a short report summarizing our product roadmap",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Draft a professional email to my admissions committee requesting a meeting",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a short report summarizing our annual budget",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Polish this personal statement for a graduate application",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Rewrite this announcement for a company newsletter",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Draft a professional email to my project manager requesting a meeting",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a thank-you email to a professor after an interview",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Draft a follow-up email after a job interview",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Make this message sound friendlier and more natural",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a short product description for a new app",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a short report summarizing our hackathon results",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Draft a professional email to my team lead requesting a meeting",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a short report summarizing our sustainability initiative",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Draft a professional email to my client requesting a meeting",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Draft a professional email to my editor requesting a meeting",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Rewrite this paragraph to remove repetition",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a short report summarizing our research progress",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Draft a caption for a social media post about a new launch",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Draft a professional email to my customer requesting a meeting",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Draft a professional email to my supervisor requesting a meeting",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Make this email sound less abrupt",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "What is the current status of OpenAI vs Microsoft partnership?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of AI regulation",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on India's GDP growth this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on the war in the news this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of global inflation",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of India-US trade deal?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of quantum computing research?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on Python this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of battery technology",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of electric vehicles",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of the war in the news",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of iPhone model and specs",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of climate policy?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of chip manufacturing?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of battery technology?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of India's GDP growth",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of fusion energy projects",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of renewable energy policy?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on AI regulation this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on fusion energy projects this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the latest on climate policy negotiations?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on battery technology this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the update on current inflation trends?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of the war in the news?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What are the newest developments in robotics this month?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of the latest developments in robotics",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on electric vehicles this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of global inflation?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of OpenAI vs Microsoft partnership",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of climate policy",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of chip manufacturing",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on India-US trade deal this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of space exploration?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of India-US trade deal",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on renewable energy policy this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of fusion energy projects?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of Python?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of renewable energy policy",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the current status of electric vehicles?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on the stock market this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What is the recent progress in AI safety research?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on iPhone model and specs this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on climate policy this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on the latest developments in robotics this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of quantum computing research",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Give me a recent overview of space exploration",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on global inflation this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "What's the latest update on OpenAI vs Microsoft partnership this year?",
+      "gold_agent": "research"
+    },
+    {
+      "query": "Explain photosynthesis in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain the central limit theorem in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain opportunity cost in economics in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is gravity?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "How do hash tables work?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What does inheritance mean in OOP?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain supply and demand in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is binary search?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain recursion in programming in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is the water cycle?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is supply and demand?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is machine learning?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain mitosis and meiosis in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is the human immune system?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain the human immune system in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is neural networks?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain neural networks in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain encryption in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "How does the water cycle work?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is encryption?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain binary search in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What happens during cell division?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is black holes?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain hash tables in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain plate tectonics in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain inheritance in object-oriented programming in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is cell division?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is opportunity cost in economics?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain transformer models in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is transformer models?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is supervised and unsupervised learning?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain machine learning in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "How do transformer models work in deep learning?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is mitosis and meiosis?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is plate tectonics?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is Bayes' theorem used for?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is the central limit theorem?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "How do vaccines help the immune system?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain gravity in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is hash tables?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is recursion in programming?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is inheritance in object-oriented programming?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain entropy in thermodynamics in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "What is Bayes' theorem?",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain black holes in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain the water cycle in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Explain cell division in simple terms",
+      "gold_agent": "knowledge"
+    },
+    {
+      "query": "Could you remind me later?",
+      "gold_agent": "none"
+    },
+    {
+      "query": "see you soon",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Let's chat for a bit",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Can you follow my instructions?",
+      "gold_agent": "none"
+    },
+    {
+      "query": "nice to meet you",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Maybe later",
+      "gold_agent": "none"
+    },
+    {
+      "query": "I need some help",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Are you there?",
+      "gold_agent": "none"
+    },
+    {
+      "query": "my bad",
+      "gold_agent": "none"
+    },
+    {
+      "query": "sounds perfect",
+      "gold_agent": "none"
+    },
+    {
+      "query": "good evening",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Hello there",
+      "gold_agent": "none"
+    },
+    {
+      "query": "all right",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Please continue",
+      "gold_agent": "none"
+    },
+    {
+      "query": "No worries",
+      "gold_agent": "none"
+    },
+    {
+      "query": "thanks again",
+      "gold_agent": "none"
+    },
+    {
+      "query": "good afternoon",
+      "gold_agent": "none"
+    },
+    {
+      "query": "What can you do?",
+      "gold_agent": "none"
+    },
+    {
+      "query": "I have a quick question",
+      "gold_agent": "none"
+    },
+    {
+      "query": "I'm just testing this",
+      "gold_agent": "none"
+    },
+    {
+      "query": "That makes sense",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Write a formal email to my manager about deadline extension",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a friendly email to my manager about deadline extension",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a concise email to my manager about deadline extension",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a professional email to my manager about deadline extension",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a persuasive email to my manager about deadline extension",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a polished email to my manager about deadline extension",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a clear email to my manager about deadline extension",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a warm email to my manager about deadline extension",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a assertive email to my manager about deadline extension",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a diplomatic email to my manager about deadline extension",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a formal email to my manager about project update",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a friendly email to my manager about project update",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a concise email to my manager about project update",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a professional email to my manager about project update",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a persuasive email to my manager about project update",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a polished email to my manager about project update",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a clear email to my manager about project update",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a warm email to my manager about project update",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a assertive email to my manager about project update",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a diplomatic email to my manager about project update",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "Write a formal email to my manager about event invite",
+      "gold_agent": "writing"
+    },
+    {
+      "query": "hey",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Hey",
+      "gold_agent": "none"
+    },
+    {
+      "query": "hi there",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Hi There",
+      "gold_agent": "none"
+    },
+    {
+      "query": "hello",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Hello",
+      "gold_agent": "none"
+    },
+    {
+      "query": "thanks",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Thanks",
+      "gold_agent": "none"
+    },
+    {
+      "query": "thank you",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Thank You",
+      "gold_agent": "none"
+    },
+    {
+      "query": "got it",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Got It",
+      "gold_agent": "none"
+    },
+    {
+      "query": "okay",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Okay",
+      "gold_agent": "none"
+    },
+    {
+      "query": "cool",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Cool",
+      "gold_agent": "none"
+    },
+    {
+      "query": "alright",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Alright",
+      "gold_agent": "none"
+    },
+    {
+      "query": "hmm",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Hmm",
+      "gold_agent": "none"
+    },
+    {
+      "query": "what time is it",
+      "gold_agent": "none"
+    },
+    {
+      "query": "What Time Is It",
+      "gold_agent": "none"
+    },
+    {
+      "query": "can you hear me",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Can You Hear Me",
+      "gold_agent": "none"
+    },
+    {
+      "query": "are you online",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Are You Online",
+      "gold_agent": "none"
+    },
+    {
+      "query": "let's talk",
+      "gold_agent": "none"
+    },
+    {
+      "query": "Let'S Talk",
+      "gold_agent": "none"
+    }
+  ]
+}

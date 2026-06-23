@@ -690,31 +690,84 @@ class EdgeTestHarness:
 
     # ── 10. ConfidenceCalibrator ──────────────────────────────
 
-    def test_calibrator_passthrough_unit_weights(self):
-        """With all weights=1.0, calibrated scores should equal raw scores."""
+    def test_calibrator_loads_fitted_params(self):
+        """Calibrator should load fitted (a, b) Platt-scaling params for every known agent."""
+        try:
+            from confidence_calibrator import ConfidenceCalibrator
+            cal = ConfidenceCalibrator()
+            expected_agents = {"math", "code", "data", "document", "writing", "research", "knowledge"}
+            assert expected_agents.issubset(set(cal.params.keys())), (
+                f"Missing calibration params for: {expected_agents - set(cal.params.keys())}. "
+                f"Run `python calibration/train_calibrator.py` to generate calibration_params.json."
+            )
+            for agent, p in cal.params.items():
+                assert "a" in p and "b" in p, f"{agent}: missing a/b"
+            self._log("ConfidenceCalibrator", "Loads fitted Platt-scaling params for all agents", "PASS")
+        except Exception as e:
+            self._log("ConfidenceCalibrator", "Loads fitted Platt-scaling params for all agents", "FAIL", e)
+
+    def test_calibrator_sigmoid_transform_applied(self):
+        """A known raw score should be transformed via sigmoid(a*x+b), not passed through unchanged."""
         try:
             from confidence_calibrator import ConfidenceCalibrator
             cal = ConfidenceCalibrator()
             raw = {"math": 0.7, "code": 0.3, "knowledge": 0.9}
             calibrated = cal.calibrate(raw)
-            for k, v in raw.items():
-                assert abs(calibrated[k] - v) < 1e-9, f"{k}: expected {v}, got {calibrated[k]}"
-            self._log("ConfidenceCalibrator", "Unit weights pass scores through unchanged", "PASS")
-        except Exception as e:
-            self._log("ConfidenceCalibrator", "Unit weights pass scores through unchanged", "FAIL", e)
 
-    def test_calibrator_clamps_to_one(self):
-        """Calibrated score must never exceed 1.0 even if weight > 1."""
+            # The calibrated score must differ from the raw score for agents
+            # with fitted, non-identity parameters (a != 1 or b != 0).
+            changed = any(abs(calibrated[k] - v) > 1e-6 for k, v in raw.items())
+            assert changed, "Calibrated scores are identical to raw scores -- calibration is a no-op"
+
+            # Verify the transform matches sigmoid(a*x+b) exactly for one agent.
+            a, b = cal.params["math"]["a"], cal.params["math"]["b"]
+            expected = ConfidenceCalibrator._sigmoid(a * 0.7 + b)
+            assert abs(calibrated["math"] - expected) < 1e-9, (
+                f"math: expected sigmoid(a*x+b)={expected}, got {calibrated['math']}"
+            )
+            self._log("ConfidenceCalibrator", "Applies fitted sigmoid(a*x+b) transform, not identity", "PASS")
+        except Exception as e:
+            self._log("ConfidenceCalibrator", "Applies fitted sigmoid(a*x+b) transform, not identity", "FAIL", e)
+
+    def test_calibrator_unknown_agent_passthrough(self):
+        """An agent with no fitted params should pass through unchanged (graceful fallback)."""
         try:
             from confidence_calibrator import ConfidenceCalibrator
             cal = ConfidenceCalibrator()
-            cal.weights["math"] = 2.0  # artificially inflate
-            raw = {"math": 0.8}
+            raw = {"some_future_agent": 0.55}
             calibrated = cal.calibrate(raw)
-            assert calibrated["math"] <= 1.0, f"Score exceeded 1.0: {calibrated['math']}"
-            self._log("ConfidenceCalibrator", "Calibrated score clamped to 1.0", "PASS")
+            assert abs(calibrated["some_future_agent"] - 0.55) < 1e-9, (
+                f"Expected passthrough for unknown agent, got {calibrated['some_future_agent']}"
+            )
+            self._log("ConfidenceCalibrator", "Unknown agents pass through unchanged", "PASS")
         except Exception as e:
-            self._log("ConfidenceCalibrator", "Calibrated score clamped to 1.0", "FAIL", e)
+            self._log("ConfidenceCalibrator", "Unknown agents pass through unchanged", "FAIL", e)
+
+    def test_calibrator_output_bounded(self):
+        """Calibrated scores must always lie in [0, 1] regardless of input."""
+        try:
+            from confidence_calibrator import ConfidenceCalibrator
+            cal = ConfidenceCalibrator()
+            raw = {"math": 1.0, "code": 0.0, "data": 0.5}
+            calibrated = cal.calibrate(raw)
+            for k, v in calibrated.items():
+                assert 0.0 <= v <= 1.0, f"{k}: calibrated score {v} out of [0,1] bounds"
+            self._log("ConfidenceCalibrator", "Calibrated scores bounded in [0, 1]", "PASS")
+        except Exception as e:
+            self._log("ConfidenceCalibrator", "Calibrated scores bounded in [0, 1]", "FAIL", e)
+
+    def test_calibrator_missing_params_file_falls_back_to_identity(self):
+        """If calibration_params.json is missing, calibrator must degrade to identity, not crash."""
+        try:
+            from confidence_calibrator import ConfidenceCalibrator
+            cal = ConfidenceCalibrator(params_path="/nonexistent/path/calibration_params.json")
+            assert cal.params == {}, "Expected empty params when file is missing"
+            raw = {"math": 0.42}
+            calibrated = cal.calibrate(raw)
+            assert abs(calibrated["math"] - 0.42) < 1e-9, "Expected identity passthrough when no params loaded"
+            self._log("ConfidenceCalibrator", "Missing params file falls back to identity", "PASS")
+        except Exception as e:
+            self._log("ConfidenceCalibrator", "Missing params file falls back to identity", "FAIL", e)
 
     # ─────────────────────────────────────────────────────────
     # E2E TESTS — require live server at localhost:8000
@@ -1090,8 +1143,11 @@ class EdgeTestHarness:
         self.test_source_selector_backfill_when_sparse()
 
         # ConfidenceCalibrator
-        self.test_calibrator_passthrough_unit_weights()
-        self.test_calibrator_clamps_to_one()
+        self.test_calibrator_loads_fitted_params()
+        self.test_calibrator_sigmoid_transform_applied()
+        self.test_calibrator_unknown_agent_passthrough()
+        self.test_calibrator_output_bounded()
+        self.test_calibrator_missing_params_file_falls_back_to_identity()
 
         print("\n── E2E Tests (server must be running) ─────────────────\n")
 

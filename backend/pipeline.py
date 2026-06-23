@@ -1,5 +1,6 @@
 import json
 import asyncio
+import time
 from typing import AsyncGenerator, Dict, Any
 
 from logger import logger
@@ -18,6 +19,17 @@ from answer_driving_agent import AnswerDrivingAgent
 from rank_bm25 import BM25Okapi
 import re
 from display_agent import DisplayFormattingAgent
+from context_packer import AdaptiveContextPacker
+
+# FIX (#5): the query cache previously had no TTL and no invalidation hook.
+# A stale answer for a normalized query string could be served forever
+# within a worker's lifetime, even after the underlying corpus changed via
+# re-ingestion, edits, or deletion. CACHE_TTL_SECONDS puts a hard ceiling on
+# staleness even if nobody remembers to call invalidate_cache(); the
+# generation counter (see invalidate_cache()) gives ingestion an explicit,
+# immediate way to blow away every cached answer the moment new documents
+# land, rather than waiting out the TTL.
+CACHE_TTL_SECONDS = 15 * 60  # 15 minutes
 
 def _bm25_rank_chunks(query: str, chunks: list, top_k: int = 20) -> list:
     """Rank chunks by BM25 relevance to the query and return top_k."""
@@ -44,7 +56,12 @@ class PipelineOrchestrator:
         self.qu_engine = QueryUnderstandingEngine()
         self.search_planner = SearchPlanner()
         self.answer_planner = AnswerPlanner()
-        self.answer_verifier = AnswerVerifier()
+        # Pass retriever + generator callbacks so AnswerVerifier can run the
+        # Self-RAG faithfulness loop for doc_rag queries.
+        self.answer_verifier = AnswerVerifier(
+            retriever=None,   # set after local_retriever is stored below
+            generator=None,   # set after generator is stored below
+        )
         self.context = ConversationContext()
         
         self.searcher = WebSearcher()
@@ -56,9 +73,66 @@ class PipelineOrchestrator:
         self.generator = generator
         self.answer_driving_agent = AnswerDrivingAgent()
         self.display_agent = DisplayFormattingAgent()
+        self.context_packer = AdaptiveContextPacker()
+        # Wire Self-RAG callbacks now that both retriever + generator are assigned.
+        self.answer_verifier._retriever = self._doc_retriever_callback
+        self.answer_verifier._generator = self.generator.generate_stream
         # In-process memory cache. Note: if server restarts or multiple workers are used, cache is lost.
-        self.query_cache = {}
+        # Each entry is now (event, cached_at_ts, corpus_generation) instead
+        # of a bare event -- see _cache_get / _cache_put / invalidate_cache.
+        self.query_cache: Dict[str, Any] = {}
+        # Bumped by invalidate_cache() (called after any document
+        # upload/edit/delete). Any cache entry stamped with an older
+        # generation is treated as a miss, regardless of its TTL.
+        self._corpus_generation = 0
 
+    def invalidate_cache(self) -> None:
+        """Call this after ingesting, editing, or deleting any document.
+
+        Cheapest correct option: bump the generation counter so every
+        existing cache entry is treated as stale on next lookup, without
+        having to walk and delete every key (which matters once the cache
+        has many entries across many users/sessions in a single worker).
+        """
+        self._corpus_generation += 1
+        logger.info(f"[CACHE] Invalidated (corpus_generation={self._corpus_generation}); "
+                    f"{len(self.query_cache)} stale entries will be skipped on next lookup.")
+
+    def _cache_get(self, norm_q: str):
+        entry = self.query_cache.get(norm_q)
+        if entry is None:
+            return None
+        event, cached_at, generation = entry
+        if generation != self._corpus_generation:
+            logger.info(f"[CACHE] Stale entry for '{norm_q}' (corpus changed since caching), treating as miss.")
+            del self.query_cache[norm_q]
+            return None
+        if (time.time() - cached_at) > CACHE_TTL_SECONDS:
+            logger.info(f"[CACHE] Expired entry for '{norm_q}' (TTL={CACHE_TTL_SECONDS}s), treating as miss.")
+            del self.query_cache[norm_q]
+            return None
+        return event
+
+    def _cache_put(self, norm_q: str, event) -> None:
+        self.query_cache[norm_q] = (event, time.time(), self._corpus_generation)
+
+    def _doc_retriever_callback(self, query: str, top_k: int = 7) -> list:
+        """Thin wrapper so AnswerVerifier can call local_retriever.retrieve()
+        with retrieval_complexity drawn from the last query_plan, enabling
+        the Self-RAG retry to use the same routing the original call used."""
+        complexity = getattr(self, "_last_retrieval_complexity", None)
+        use_summary_nodes = complexity in ("simple", "multi_hop", "global")
+        try:
+            return self.local_retriever.retrieve(
+                query,
+                top_k=top_k,
+                complexity=complexity,
+                use_summary_nodes=use_summary_nodes,
+            )
+        except TypeError:
+            # Backward-compatible fallback for older retriever implementations.
+            return self.local_retriever.retrieve(query, top_k=top_k, complexity=complexity)
+        
     async def execute(self, raw_query: str, mode: str = "auto", has_documents: bool = False) -> AsyncGenerator[Dict[str, Any], None]:
         # 0. Conversation Context (Resolve entities)
         resolved_query = self.context.resolve_references(raw_query)
@@ -99,14 +173,27 @@ class PipelineOrchestrator:
             agent = master_router_instance.registry.get_agent(agent_name)
             if agent:
                 uncertainty_flag = (0.5 <= confidence < 0.7)
+                # FIX (#10): margin-based ambiguity (see master_router.py) is
+                # a different signal from the absolute-confidence band above
+                # -- it fires whenever the runner-up agent was close behind,
+                # regardless of where the winner's own score falls. A
+                # margin-thin win was decided more by priority_order than by
+                # the detectors actually disagreeing strongly, and the user
+                # deserves the same "this routing decision was uncertain"
+                # signal in that case as in the absolute-confidence case.
+                margin_ambiguous_flag = bool(route_decision.get("ambiguous"))
                 
                 # We yield the agent's stream
                 async for event in agent.solve(resolved_query, router_context):
                     # Attach uncertainty flag to final event if needed
-                    if uncertainty_flag and event["event"] == "final":
+                    if (uncertainty_flag or margin_ambiguous_flag) and event["event"] == "final":
                         try:
                             data = json.loads(event["data"])
-                            data["uncertainty_flag"] = True
+                            if uncertainty_flag:
+                                data["uncertainty_flag"] = True
+                            if margin_ambiguous_flag:
+                                data["margin_ambiguous_flag"] = True
+                                data["runner_up_agent"] = route_decision.get("runner_up_agent")
                             data["routed_agent"] = agent_name
                             event["data"] = json.dumps(data)
                         except:
@@ -132,11 +219,12 @@ class PipelineOrchestrator:
         # Record the user's turn in history_objects
         self.context.history_objects.append({"role": "user", "content": final_query})
 
-        # Check cache
+        # Check cache (TTL + corpus-generation aware -- see _cache_get)
         norm_q = self.qu_engine._normalize_query(final_query)
-        if norm_q in self.query_cache:
+        cached_event = self._cache_get(norm_q)
+        if cached_event is not None:
             logger.info(f"[CACHE] Cache hit for query: {norm_q}")
-            yield self.query_cache[norm_q]
+            yield cached_event
             return
             
         # 1. Query Understanding
@@ -176,7 +264,7 @@ class PipelineOrchestrator:
                     "interpretation": search_plan
                 })
             }
-            self.query_cache[norm_q] = final_event
+            self._cache_put(norm_q, final_event)
             yield final_event
             return
 
@@ -203,7 +291,7 @@ class PipelineOrchestrator:
                     "mode": "direct_web"
                 }
                 direct_events[-1]["data"] = json.dumps(final_direct_obj)
-                self.query_cache[norm_q] = direct_events[-1]
+                self._cache_put(norm_q, direct_events[-1])
                 for event in direct_events:
                     yield event
                 return
@@ -224,8 +312,27 @@ class PipelineOrchestrator:
         source_metadata_map = {}
         
         if plan_mode == "doc_rag":
-            # For local documents, we just use the hybrid retriever once
-            top_candidates = self.local_retriever.retrieve(final_query, top_k=5)
+            # Pass retrieval_complexity from query_plan so the retriever can gate
+            # strategy (simple=fast dense, global=RAPTOR summaries, multi_hop=full).
+            retrieval_complexity = query_plan.get("retrieval_complexity")
+            self._last_retrieval_complexity = retrieval_complexity  # for Self-RAG retry callback
+            logger.info(f"[DOC RAG] retrieval_complexity={retrieval_complexity!r}")
+            top_candidates = self.local_retriever.retrieve(
+                final_query, top_k=5, complexity=retrieval_complexity
+            )
+            # FIX (visibility): a BM25 or dense arm can fail silently inside
+            # the retriever and still produce a plausible-looking result set
+            # from the surviving arm alone. Surface that here so the final
+            # answer's confidence reflects degraded evidence quality instead
+            # of looking identical to a fully healthy retrieval.
+            self._last_retrieval_degraded = bool(
+                getattr(getattr(self.local_retriever, "_inner", self.local_retriever), "_last_search_pair_failures", None)
+            )
+            if self._last_retrieval_degraded:
+                logger.error(
+                    "[DOC RAG] Retrieval was degraded (BM25 and/or dense arm failed) for query: %s",
+                    final_query,
+                )
             if not top_candidates:
                 final_event = {
                     "event": "final",
@@ -238,12 +345,13 @@ class PipelineOrchestrator:
                         "interpretation": search_plan
                     })
                 }
-                self.query_cache[norm_q] = final_event
+                self._cache_put(norm_q, final_event)
                 yield final_event
                 return
             context_chunks = top_candidates
             # We don't have a source map for local docs built the same way, generator handles it natively
         else:
+            self._last_retrieval_degraded = False
             selected_sources = await self.web_retriever.retrieve(search_plan, memory)
             
             if intent == "definition" and selected_sources:
@@ -261,7 +369,7 @@ class PipelineOrchestrator:
                         "interpretation": search_plan
                     })
                  }
-                 self.query_cache[norm_q] = final_event
+                 self._cache_put(norm_q, final_event)
                  yield final_event
                  return
                  
@@ -294,8 +402,14 @@ class PipelineOrchestrator:
         final_answer_obj = None
         
         display_injection = self.display_agent.get_prompt_injection(display_context)
+        packed_context_chunks = self.context_packer.pack(
+            final_query,
+            context_chunks,
+            answer_plan=answer_plan,
+            mode=plan_mode,
+        )
         
-        async for event in self.generator.generate_stream(final_query, _bm25_rank_chunks(final_query, context_chunks, top_k=20), mode=plan_mode, source_map=source_metadata_map, answer_plan=answer_plan, display_injection=display_injection):
+        async for event in self.generator.generate_stream(final_query, packed_context_chunks, mode=plan_mode, source_map=source_metadata_map, answer_plan=answer_plan, display_injection=display_injection):
             if event["event"] == "final":
                 try:
                     final_answer_obj = json.loads(event["data"])
@@ -308,12 +422,29 @@ class PipelineOrchestrator:
             return
             
         # 10. Answer Verification
-        verified_obj = await self.answer_verifier.verify(final_answer_obj, answer_plan)
+        verified_obj = await self.answer_verifier.verify(
+            final_answer_obj, answer_plan,
+            retrieved_chunks=packed_context_chunks if plan_mode == "doc_rag" else None,
+        )
         
         # Apply Display Formatting (exclude direct_web)
         if plan_mode != "direct_web":
             verified_obj = self.display_agent.process(verified_obj, display_context)
-            
+
+        # FIX (visibility): if retrieval ran in degraded mode (BM25 and/or
+        # dense arm failed and we're only seeing results from the surviving
+        # arm), don't let the final answer look identical to a fully healthy
+        # retrieval. Downgrade confidence and flag it explicitly so the UI
+        # and any downstream eval can distinguish "found nothing because
+        # nothing exists" from "found less than we should have because part
+        # of the pipeline broke".
+        if getattr(self, "_last_retrieval_degraded", False):
+            verified_obj["degraded_retrieval"] = True
+            if verified_obj.get("confidence") == "high":
+                verified_obj["confidence"] = "medium"
+            elif verified_obj.get("confidence") == "medium":
+                verified_obj["confidence"] = "low"
+
         # Attach interpretation metadata for the UI
         verified_obj["interpretation"] = {
             "intent": search_plan.get("intent"),
@@ -337,5 +468,5 @@ class PipelineOrchestrator:
             "event": "final",
             "data": json.dumps(verified_obj)
         }
-        self.query_cache[norm_q] = final_event
+        self._cache_put(norm_q, final_event)
         yield final_event

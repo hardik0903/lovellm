@@ -1,405 +1,425 @@
 {
-  "passed": 64,
-  "failed": 1,
+  "passed": 65,
+  "failed": 3,
   "warnings": 1,
   "failing_modules": [
-    "E2E Latency"
+    "ConfidenceCalibrator"
   ],
   "details": [
     {
-      "timestamp": "2026-06-14T06:06:20.061109",
+      "timestamp": "2026-06-14T19:21:48.157762",
       "module_name": "Detector",
       "test_name": "Math \u2014 expression pattern fires",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:20.070654",
+      "timestamp": "2026-06-14T19:21:48.157762",
       "module_name": "Detector",
       "test_name": "Math \u2014 keyword saturation clamps to 1.0",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:20.072674",
+      "timestamp": "2026-06-14T19:21:48.158764",
       "module_name": "Detector",
       "test_name": "Code \u2014 stacktrace triggers without lang keyword",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:20.072674",
+      "timestamp": "2026-06-14T19:21:48.159761",
       "module_name": "Detector",
       "test_name": "Code \u2014 fenced code block triggers",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:20.075647",
+      "timestamp": "2026-06-14T19:21:48.161761",
       "module_name": "Detector",
       "test_name": "Knowledge \u2014 suppressed by research keywords",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:20.077226",
+      "timestamp": "2026-06-14T19:21:48.163093",
       "module_name": "Detector",
       "test_name": "Document \u2014 zero confidence without uploaded docs",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:20.078830",
+      "timestamp": "2026-06-14T19:21:48.163093",
       "module_name": "Detector",
       "test_name": "Data \u2014 zero confidence without data file",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:20.080933",
+      "timestamp": "2026-06-14T19:21:48.164156",
       "module_name": "Detector",
       "test_name": "Writing \u2014 short rewrite scores exactly 0.5",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:20.080933",
+      "timestamp": "2026-06-14T19:21:48.164156",
       "module_name": "Detector",
       "test_name": "Writing \u2014 long rewrite scores 0.8",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:21.029052",
+      "timestamp": "2026-06-14T19:21:51.390344",
       "module_name": "MasterRouter",
       "test_name": "Math beats knowledge on integral query",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:21.143732",
+      "timestamp": "2026-06-14T19:21:51.510540",
       "module_name": "MasterRouter",
       "test_name": "Priority order: math beats code on tie",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:21.264580",
+      "timestamp": "2026-06-14T19:21:51.635660",
       "module_name": "MasterRouter",
       "test_name": "Below-threshold query falls through",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:21.272923",
+      "timestamp": "2026-06-14T19:21:51.636758",
       "module_name": "QueryRouter",
       "test_name": "Quoted phrase \u2192 BM25",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:21.278966",
+      "timestamp": "2026-06-14T19:21:51.636758",
       "module_name": "QueryRouter",
       "test_name": "Alphanumeric ID \u2192 BM25",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:21.285012",
+      "timestamp": "2026-06-14T19:21:51.637764",
       "module_name": "QueryRouter",
       "test_name": "Long semantic question with number \u2192 dense/hybrid",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:21.288064",
+      "timestamp": "2026-06-14T19:21:51.637764",
       "module_name": "QueryRouter",
       "test_name": "Conceptual why-question \u2192 dense",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:34.884099",
+      "timestamp": "2026-06-14T19:22:39.966426",
       "module_name": "Reranker",
       "test_name": "Single candidate skips rerank",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:34.884099",
+      "timestamp": "2026-06-14T19:22:39.966426",
       "module_name": "Reranker",
       "test_name": "Compare keyword triggers rerank",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:34.884099",
+      "timestamp": "2026-06-14T19:22:39.966426",
       "module_name": "Reranker",
       "test_name": "Close scores (<0.1 diff) trigger rerank",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:34.884099",
+      "timestamp": "2026-06-14T19:22:39.966426",
       "module_name": "Reranker",
       "test_name": "Wide score gap skips rerank",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.140462",
+      "timestamp": "2026-06-14T19:22:40.435396",
       "module_name": "Chunker",
       "test_name": "Empty text \u2192 empty chunk list",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.142480",
+      "timestamp": "2026-06-14T19:22:40.435396",
       "module_name": "Chunker",
       "test_name": "Tiny text \u2192 1 child chunk with parent ref",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.142480",
+      "timestamp": "2026-06-14T19:22:40.435396",
       "module_name": "Chunker",
       "test_name": "Metadata propagates to all child chunks",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.144499",
+      "timestamp": "2026-06-14T19:22:40.438823",
       "module_name": "Chunker",
       "test_name": "Large text produces multiple parent chunks",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.144499",
+      "timestamp": "2026-06-14T19:22:40.438823",
       "module_name": "Chunker",
       "test_name": "All chunk IDs are unique",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.148534",
+      "timestamp": "2026-06-14T19:22:40.443820",
       "module_name": "BM25Store",
       "test_name": "Exact name match ranks first",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.150553",
+      "timestamp": "2026-06-14T19:22:40.443820",
       "module_name": "BM25Store",
       "test_name": "Exact date lookup retrieves correct chunk",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.150553",
+      "timestamp": "2026-06-14T19:22:40.445324",
       "module_name": "BM25Store",
       "test_name": "Empty query returns empty list gracefully",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.152573",
+      "timestamp": "2026-06-14T19:22:40.446341",
       "module_name": "BM25Store",
       "test_name": "Gibberish query returns empty list",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.155102",
+      "timestamp": "2026-06-14T19:22:40.447345",
       "module_name": "BM25Store",
       "test_name": "Duplicate add is idempotent",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.155102",
+      "timestamp": "2026-06-14T19:22:40.447876",
       "module_name": "ConversationContext",
       "test_name": "Pronoun 'it' resolves to active topic",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.156116",
+      "timestamp": "2026-06-14T19:22:40.447876",
       "module_name": "ConversationContext",
       "test_name": "No-pronoun query passes unchanged",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.156116",
+      "timestamp": "2026-06-14T19:22:40.447876",
       "module_name": "ConversationContext",
       "test_name": "Pronoun with no active topic \u2192 no injection",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.156116",
+      "timestamp": "2026-06-14T19:22:40.447876",
       "module_name": "ConversationContext",
       "test_name": "update_context sets active_topic to last concept",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.156116",
+      "timestamp": "2026-06-14T19:22:40.448930",
       "module_name": "EvidenceRanker",
       "test_name": "High-quality domain gets score boost",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.156116",
+      "timestamp": "2026-06-14T19:22:40.448930",
       "module_name": "EvidenceRanker",
       "test_name": "Eigen C++ result penalized for eigenvector query",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.156116",
+      "timestamp": "2026-06-14T19:22:40.448930",
       "module_name": "EvidenceRanker",
       "test_name": "Threshold filters irrelevant results",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.158143",
+      "timestamp": "2026-06-14T19:22:40.449917",
       "module_name": "RetrievalMemory",
       "test_name": "Duplicate query detected",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.158143",
+      "timestamp": "2026-06-14T19:22:40.449917",
       "module_name": "RetrievalMemory",
       "test_name": "Rejected URL blocked, others allowed",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.158143",
+      "timestamp": "2026-06-14T19:22:40.449917",
       "module_name": "RetrievalMemory",
       "test_name": "Accepted sources accumulate in order",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.158143",
+      "timestamp": "2026-06-14T19:22:40.451351",
       "module_name": "SourceSelector",
       "test_name": "Domain diversity enforced in first-pass",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.160155",
+      "timestamp": "2026-06-14T19:22:40.451351",
       "module_name": "SourceSelector",
       "test_name": "Backfill reaches max_sources when diversity is sparse",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.160155",
+      "timestamp": "2026-06-14T19:22:40.451351",
       "module_name": "ConfidenceCalibrator",
-      "test_name": "Unit weights pass scores through unchanged",
+      "test_name": "Loads fitted Platt-scaling params for all agents",
+      "status": "FAIL",
+      "error_message": "'ConfidenceCalibrator' object has no attribute 'params'"
+    },
+    {
+      "timestamp": "2026-06-14T19:22:40.451351",
+      "module_name": "ConfidenceCalibrator",
+      "test_name": "Applies fitted sigmoid(a*x+b) transform, not identity",
+      "status": "FAIL",
+      "error_message": "Calibrated scores are identical to raw scores -- calibration is a no-op"
+    },
+    {
+      "timestamp": "2026-06-14T19:22:40.451351",
+      "module_name": "ConfidenceCalibrator",
+      "test_name": "Unknown agents pass through unchanged",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:35.160155",
+      "timestamp": "2026-06-14T19:22:40.451351",
       "module_name": "ConfidenceCalibrator",
-      "test_name": "Calibrated score clamped to 1.0",
+      "test_name": "Calibrated scores bounded in [0, 1]",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:44.658468",
+      "timestamp": "2026-06-14T19:22:40.452529",
+      "module_name": "ConfidenceCalibrator",
+      "test_name": "Missing params file falls back to identity",
+      "status": "FAIL",
+      "error_message": "ConfidenceCalibrator.__init__() got an unexpected keyword argument 'params_path'"
+    },
+    {
+      "timestamp": "2026-06-14T19:22:44.629320",
       "module_name": "E2E SSE Contract",
       "test_name": "knowledge \u2014 delta+final JSON shape",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:49.057227",
+      "timestamp": "2026-06-14T19:22:47.967277",
       "module_name": "E2E SSE Contract",
       "test_name": "code \u2014 delta+final JSON shape",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:52.546153",
+      "timestamp": "2026-06-14T19:22:49.556402",
       "module_name": "E2E SSE Contract",
       "test_name": "math \u2014 delta+final JSON shape",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:06:54.009290",
+      "timestamp": "2026-06-14T19:22:52.006710",
       "module_name": "E2E SSE Contract",
       "test_name": "writing \u2014 delta+final JSON shape",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:07:09.058081",
+      "timestamp": "2026-06-14T19:23:13.101795",
       "module_name": "E2E SSE Contract",
       "test_name": "web \u2014 delta+final JSON shape",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:07:09.323972",
+      "timestamp": "2026-06-14T19:23:13.376675",
       "module_name": "E2E Guard",
       "test_name": "Empty query \u2192 HTTP 400",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:07:09.611159",
+      "timestamp": "2026-06-14T19:23:13.654268",
       "module_name": "E2E Guard",
       "test_name": "Whitespace query \u2192 HTTP 400",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:07:11.792753",
+      "timestamp": "2026-06-14T19:23:15.967402",
       "module_name": "E2E Routing Collision",
       "test_name": "Math vs Knowledge on integral \u2192 knowledge (acceptable)",
       "status": "WARN",
       "error_message": "Math detector did not win; may need tuning"
     },
     {
-      "timestamp": "2026-06-14T06:07:13.624407",
+      "timestamp": "2026-06-14T19:23:19.086510",
       "module_name": "E2E Routing Collision",
       "test_name": "Code vs Knowledge on explain+Python \u2192 knowledge",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:07:15.376874",
+      "timestamp": "2026-06-14T19:23:21.341036",
       "module_name": "E2E DocumentAgent",
       "test_name": "Document query returns non-empty document sources",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:07:16.746160",
+      "timestamp": "2026-06-14T19:23:23.078126",
       "module_name": "E2E DocumentAgent",
       "test_name": "Answer grounds in fixture content (Alpha)",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:07:17.695325",
+      "timestamp": "2026-06-14T19:23:24.556777",
       "module_name": "E2E DocumentAgent",
       "test_name": "Semantic fixture content retrieved for QNAS query",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:07:19.772816",
+      "timestamp": "2026-06-14T19:23:27.192783",
       "module_name": "E2E Schema",
       "test_name": "Confidence field valid for: What is photosynthesis?...",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:07:22.340383",
+      "timestamp": "2026-06-14T19:23:30.677184",
       "module_name": "E2E Schema",
       "test_name": "Confidence field valid for: Solve x^2 - 4 = 0...",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:07:23.487596",
+      "timestamp": "2026-06-14T19:23:32.770689",
       "module_name": "E2E Schema",
       "test_name": "Confidence field valid for: According to this document, when is the ...",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:08:16.616149",
+      "timestamp": "2026-06-14T19:23:37.987605",
       "module_name": "E2E Latency",
-      "test_name": "Knowledge query completed within 15s",
-      "status": "FAIL",
-      "error_message": "Response took 53.1s \u2014 over 15s threshold"
+      "test_name": "Knowledge query completed in 5.22s",
+      "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:08:17.503062",
+      "timestamp": "2026-06-14T19:23:41.384177",
       "module_name": "E2E Schema",
       "test_name": "needs_clarification field present and is bool",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:08:18.156646",
+      "timestamp": "2026-06-14T19:23:42.092936",
       "module_name": "E2E Resilience",
       "test_name": "Nonsense query handled gracefully (conf=low)",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:08:18.859892",
+      "timestamp": "2026-06-14T19:23:56.114852",
       "module_name": "E2E Resilience",
       "test_name": "500-word query handled without crash",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:08:21.122358",
+      "timestamp": "2026-06-14T19:24:07.646363",
       "module_name": "E2E Concurrency",
       "test_name": "Two simultaneous requests both complete",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:08:22.460074",
+      "timestamp": "2026-06-14T19:24:16.445587",
       "module_name": "E2E Mode Override",
       "test_name": "mode=doc forces doc_rag pipeline",
       "status": "PASS"
     },
     {
-      "timestamp": "2026-06-14T06:08:29.810016",
+      "timestamp": "2026-06-14T19:24:22.520809",
       "module_name": "E2E Mode Override",
       "test_name": "mode=web forces web pipeline",
       "status": "PASS"

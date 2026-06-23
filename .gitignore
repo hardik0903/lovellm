@@ -5,3 +5,20 @@ node_modules/
 .DS_Store
 *.db
 backend/data/
+.pytest_cache/
+
+# Large evaluation result files
+backend/eval_results.json
+backend/eval_results_v2.json
+backend/eval_results_v3.json
+
+# Eval corpus PDFs (large binaries)
+backend/eval_corpus/
+backend/eval_data/
+
+# Reorganization artifacts (temporary)
+backend_organized/
+backend_organized.zip
+
+# Stray accidental file
+backend/List[List[int]]

@@ -1,0 +1,103 @@
+{
+  "_description": "Gold-labeled QA set for RAG evaluation (faithfulness, answer relevance, context precision/recall, retrieval hit-rate/MRR). Each item references chunk_ids known to be relevant given the current index in data/bm25 and data/chroma, AFTER running `python -m eval.reindex_fixtures` to fix stale parent_id metadata for dummy.txt/semantic_fixture.txt and to sync the Java PDF into BM25. Queries are deliberately phrased to exercise all three QueryRouter routes (dense, bm25, hybrid) per router.py, and span both the small fixture corpus and the larger 'Language Fundamentals' PDF so context precision isn't structurally capped by corpus composition. Swap/extend this file for a domain-specific set when evaluating on a real corpus.",
+  "_version": "2.0",
+  "examples": [
+    {
+      "id": "q1",
+      "query": "What is the codename of the project and who manages it?",
+      "ground_truth": "The project codename is Project Alpha and the project manager is Sarah Jenkins.",
+      "relevant_chunk_ids": [
+        "dummy.txt_page_1_parent_0_child_0"
+      ],
+      "expected_route": "dense"
+    },
+    {
+      "id": "q2",
+      "query": "What is the launch date for Project Alpha?",
+      "ground_truth": "The launch date is 2027-10-15.",
+      "relevant_chunk_ids": [
+        "dummy.txt_page_1_parent_0_child_0"
+      ],
+      "expected_route": "dense"
+    },
+    {
+      "id": "q3",
+      "query": "What is Quantum Neural Architecture Search (QNAS)?",
+      "ground_truth": "QNAS is a conceptual framework that bridges quantum computing principles with automated machine learning, using state superposition to explore multiple model topologies simultaneously instead of relying on traditional backpropagation.",
+      "relevant_chunk_ids": [
+        "semantic_fixture.txt_page_1_parent_0_child_0",
+        "semantic_fixture.txt_page_1_parent_0_child_1"
+      ],
+      "expected_route": "dense"
+    },
+    {
+      "id": "q4",
+      "query": "What is the main drawback that makes QNAS impractical today?",
+      "ground_truth": "QNAS currently requires low-noise qubits, which makes it theoretical rather than practical.",
+      "relevant_chunk_ids": [
+        "semantic_fixture.txt_page_1_parent_0_child_0",
+        "semantic_fixture.txt_page_1_parent_0_child_1"
+      ],
+      "expected_route": "dense"
+    },
+    {
+      "id": "q5",
+      "query": "How does QNAS compare to standard Evolutionary Algorithms?",
+      "ground_truth": "Unlike standard Evolutionary Algorithms, QNAS does not require iterative generation loops; the topological search space collapses into an optimal state when evaluated against the validation loss function.",
+      "relevant_chunk_ids": [
+        "semantic_fixture.txt_page_1_parent_0_child_0",
+        "semantic_fixture.txt_page_1_parent_0_child_1"
+      ],
+      "expected_route": "dense"
+    },
+    {
+      "id": "q6",
+      "query": "list the 8 Java reserved words for data types",
+      "ground_truth": "The reserved words for data types in Java are byte, short, int, long, float, double, char, and boolean.",
+      "relevant_chunk_ids": [
+        "1._language_fundamentals_(1).pdf_page_8_parent_0_child_0"
+      ],
+      "expected_route": "hybrid",
+      "_annotation": "Changed from quoted bm25 phrase to plain hybrid query. The original \"Reserved words for data types\" quoted search surfaced page_2 and page_7 TOC headers ahead of the page_8 chunk that actually lists the 8 keywords (byte/short/int/long/float/double/char/boolean). This query phrasing correctly demands the full list, which only page_8_child_0 provides."
+    },
+    {
+      "id": "q7",
+      "query": "enum keyword introduced in 1.5v",
+      "ground_truth": "The enum keyword was introduced in Java 1.5 to define a group of named constants, e.g. enum Beer { KF, RC, KO, FO; }.",
+      "relevant_chunk_ids": [
+        "1._language_fundamentals_(1).pdf_page_10_parent_0_child_0",
+        "1._language_fundamentals_(1).pdf_page_10_parent_0_child_1"
+      ],
+      "expected_route": "bm25"
+    },
+    {
+      "id": "q8",
+      "query": "Project Alpha launch date 2027-10-15",
+      "ground_truth": "Project Alpha's launch date is 2027-10-15.",
+      "relevant_chunk_ids": [
+        "dummy.txt_page_1_parent_0_child_0"
+      ],
+      "expected_route": "bm25"
+    },
+    {
+      "id": "q9",
+      "query": "Array length vs length() method",
+      "ground_truth": "The length variable is a final field applicable only to arrays and represents the array's size, while length() is a final method applicable to String objects that returns the number of characters in the string; length is for arrays, length() is for Strings.",
+      "relevant_chunk_ids": [
+        "1._language_fundamentals_(1).pdf_page_35_parent_0_child_0",
+        "1._language_fundamentals_(1).pdf_page_35_parent_0_child_1"
+      ],
+      "expected_route": "hybrid",
+      "_annotation": "Gold label confirmed correct after manual inspection. page_3 is array multi-dimensional creation TOC; page_25_child_1 is array introduction/fixed-size disadvantage text. Neither contains the length vs length() comparison. Hybrid RRF misfire: BM25 over-weighted \"length\" (appears frequently in array size context on p25) and \"array\" (p3, p25), fusing them above the semantically-correct page_35 chunks. This is a legitimate research finding demonstrating RRF k=60 default weight needs tuning for this corpus."
+    },
+    {
+      "id": "q10",
+      "query": "NegativeArraySizeException array size rules",
+      "ground_truth": "If an array is created with a negative size value, Java throws a runtime exception called NegativeArraySizeException; the allowed data types for specifying array size are byte, short, char, and int.",
+      "relevant_chunk_ids": [
+        "1._language_fundamentals_(1).pdf_page_28_parent_0_child_0"
+      ],
+      "expected_route": "hybrid"
+    }
+  ]
+}

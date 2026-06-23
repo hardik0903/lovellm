@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import DocumentUpload from './components/DocumentUpload';
 import { Moon, Sun, MessageSquare, Globe, Bot } from 'lucide-react';
+import TelemetryDashboard from './components/TelemetryDashboard';
+import { Activity } from 'lucide-react';
 
 function App() {
   const [theme, setTheme] = useState(() => {
@@ -44,40 +46,50 @@ function App() {
 
         <div className="sidebar-section">
           <h3 className="sidebar-title">Upload Knowledge</h3>
-          <DocumentUpload onUploadSuccess={() => {}} />
+          <DocumentUpload onUploadSuccess={() => { }} />
         </div>
-        
+
         <div className="sidebar-section">
           <h3 className="sidebar-title">Routing Mode</h3>
           <div className="mode-selector">
-            <button 
+            <button
               className={`mode-btn ${activeMode === 'auto' ? 'active' : ''}`}
               onClick={() => setActiveMode('auto')}
             >
               <Bot size={18} /> Auto Route
             </button>
-            <button 
+            <button
               className={`mode-btn ${activeMode === 'doc' ? 'active' : ''}`}
               onClick={() => setActiveMode('doc')}
             >
               <MessageSquare size={18} /> Document QA
             </button>
-            <button 
+            <button
               className={`mode-btn ${activeMode === 'web' ? 'active' : ''}`}
               onClick={() => setActiveMode('web')}
             >
               <Globe size={18} /> Web Search
             </button>
+            <button
+              className={`mode-btn ${activeMode === 'telemetry' ? 'active' : ''}`}
+              onClick={() => setActiveMode('telemetry')}
+            >
+              <Activity size={18} /> Telemetry
+            </button>
           </div>
         </div>
-        
+
         <div style={{ marginTop: 'auto', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
           Powered by Llama 3.1 & Hybrid Search
         </div>
       </aside>
-      
+
       {/* Main Chat Content */}
-      <ChatInterface activeMode={activeMode} />
+      {/* <ChatInterface activeMode={activeMode} /> */}
+      {activeMode === 'telemetry'
+        ? <TelemetryDashboard />
+        : <ChatInterface activeMode={activeMode} />}
+
     </div>
   );
 }

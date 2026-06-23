@@ -43,6 +43,22 @@ class BM25Store:
         except Exception as e:
             logger.error(f"Failed to save BM25 index: {e}")
 
+    def delete_by_document_id(self, document_id: str):
+        """Removes all chunks belonging to a document_id and rebuilds the BM25 index.
+        Used by the reindexing/repair script to clear stale entries before re-ingesting
+        with the current chunking schema."""
+        before = len(self.documents)
+        self.documents = [doc for doc in self.documents if doc.get("document_id") != document_id]
+        removed = before - len(self.documents)
+        if removed == 0:
+            logger.info(f"No existing chunks found for document_id={document_id} in BM25 Store.")
+            return
+
+        logger.info(f"Removed {removed} chunks for document_id={document_id} from BM25 Store.")
+        self.tokenized_corpus = [self._tokenize(doc["text"]) for doc in self.documents]
+        self.bm25 = BM25Okapi(self.tokenized_corpus) if self.tokenized_corpus else None
+        self._save()
+
     def add_chunks(self, chunks: List[Dict[str, Any]]):
         if not chunks:
             return
@@ -62,17 +78,25 @@ class BM25Store:
         self.bm25 = BM25Okapi(self.tokenized_corpus)
         self._save()
 
-    def search(self, query: str, top_k: int = 10) -> List[Dict[str, Any]]:
+    def search(self, query: str, top_k: int = 10, node_types: List[str] = None) -> List[Dict[str, Any]]:
+        """BM25 search. `node_types`, if given, restricts results to documents whose
+        `node_type` field is in that list (e.g. ["summary"] for RAPTOR nodes only).
+        None preserves the original unfiltered behavior."""
         logger.info(f"BM25 search for query: {query}")
         if not self.bm25 or not self.documents:
             return []
 
         tokenized_query = self._tokenize(query)
         scores = self.bm25.get_scores(tokenized_query)
-        
-        # Get top k indices
-        top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
-        
+
+        if node_types:
+            allowed = set(node_types)
+            candidate_indices = [i for i, doc in enumerate(self.documents) if doc.get("node_type") in allowed]
+        else:
+            candidate_indices = list(range(len(self.documents)))
+
+        top_indices = sorted(candidate_indices, key=lambda i: scores[i], reverse=True)[:top_k]
+
         output = []
         for idx in top_indices:
             score = scores[idx]

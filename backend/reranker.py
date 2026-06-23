@@ -4,14 +4,24 @@ from logger import logger
 
 class Reranker:
     def __init__(self):
-        # We delay loading to avoid blocking startup
+        # Model is loaded lazily on first rerank call (avoid blocking startup).
+        # Pinned to CPU: the cross-encoder (~85 MB) is fast enough on CPU for
+        # the small candidate sets it scores (typically 10-20 pairs), and
+        # keeping it off-GPU preserves VRAM for Ollama's KV-cache.
+        # On an RTX 3050 4 GB the total fixed VRAM footprint is already
+        # llama3.2 ≈ 2000 MB + OS/driver ≈ 200 MB, leaving ~1896 MB for the
+        # KV-cache. Every MB saved here is margin against OOM.
         self.model = None
+        self._device = "cpu"
 
     def _load_model(self):
         if self.model is None:
-            logger.info("Loading cross-encoder model for reranking...")
-            self.model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-            logger.info("Cross-encoder model loaded.")
+            logger.info("Loading cross-encoder model for reranking (CPU)...")
+            self.model = CrossEncoder(
+                "cross-encoder/ms-marco-MiniLM-L-6-v2",
+                device=self._device,
+            )
+            logger.info("Cross-encoder model loaded on CPU.")
 
     def should_rerank(self, query: str, candidates: List[Dict[str, Any]]) -> bool:
         """
