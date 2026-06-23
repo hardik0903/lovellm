@@ -1,3 +1,4 @@
+import _path_setup  # noqa: F401 — must be first, adds subdirs to sys.path
 import os
 import shutil
 import asyncio
