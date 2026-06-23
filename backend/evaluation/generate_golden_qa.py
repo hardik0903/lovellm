@@ -54,10 +54,11 @@ except ImportError:
     print("Missing dependency: pip install groq", file=sys.stderr)
     raise
 
-BACKEND_DIR = Path(__file__).resolve().parent
+EVALUATION_DIR = Path(__file__).resolve().parent
+BACKEND_DIR = EVALUATION_DIR.parent
 CORPUS_DIR = BACKEND_DIR / "eval_corpus"
-GOLDEN_QA_PATH = BACKEND_DIR / "eval_golden_qa.json"
-STAGING_DIR = BACKEND_DIR / "generated_qa_staging"
+GOLDEN_QA_PATH = EVALUATION_DIR / "eval_golden_qa.json"
+STAGING_DIR = EVALUATION_DIR / "generated_qa_staging"
 
 MODEL = "llama-3.3-70b-versatile"  # stronger generation quality than the 8b answer model
 ID_PREFIXES = {

@@ -22,7 +22,7 @@ from typing import List, Dict, Optional
 # Corpus definition
 # ---------------------------------------------------------------------------
 
-CORPUS_DIR = Path(__file__).resolve().parent / "eval_corpus"
+CORPUS_DIR = Path(__file__).resolve().parent.parent / "eval_corpus"
 
 PDF_SOURCES: List[Dict] = [
     {

@@ -69,9 +69,9 @@ except ImportError as _packer_err:
 # Constants
 # ---------------------------------------------------------------------------
 
-EVAL_DIR = Path(__file__).parent / "eval_corpus"
+EVAL_DIR = Path(__file__).parent.parent / "eval_corpus"
 GOLDEN_QA_PATH = Path(__file__).parent / "eval_golden_qa.json"
-ISOLATED_DATA_DIR = Path(__file__).parent / "eval_data"
+ISOLATED_DATA_DIR = Path(__file__).parent.parent / "eval_data"
 
 # LLM Judge config
 JUDGE_MODEL = "llama3.1:8b"
