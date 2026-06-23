@@ -83,7 +83,7 @@ FORMAT_RULES: List[Tuple[str, List[str]]] = [
 # Phrases that signal "this is a follow-up to the previous comparison".
 CONTINUATION_SIGNALS: List[str] = [
     "now with", "add ", "include ", "what about", "also include",
-    "and ", "now add", "extend", "plus ", "throw in",
+    "now add", "extend", "plus ", "throw in",
     "alongside", "compared to all", "all three", "all of them",
 ]
 
@@ -262,8 +262,25 @@ class AmbiguityResolver:
             m = re.search(pattern, q, re.IGNORECASE)
             if m:
                 rest = m.group(1)
+                # Strip trailing instructional phrases that are NOT entity names.
+                # e.g. "AWS EC2 AND AWS LAMBDA **FOR 10 DISTINCT POINTS AND 1 EXAMPLE USE CASE**"
+                rest = re.split(
+                    r'\s+(?:for|in|with|using|giving|including|listing)\s+\d+',
+                    rest, maxsplit=1, flags=re.IGNORECASE,
+                )[0]
+                # Also strip trailing generic qualifiers
+                rest = re.sub(
+                    r'\s+(?:in detail|with examples?|briefly|in brief|in short)$',
+                    '', rest, flags=re.IGNORECASE,
+                )
                 parts = re.split(r',\s*|\s+and\s+', rest, flags=re.IGNORECASE)
-                return [p.strip().rstrip("?.,!") for p in parts if p.strip() and len(p.strip()) > 1]
+                entities = [p.strip().rstrip("?.,!") for p in parts if p.strip() and len(p.strip()) > 1]
+                # Filter out parts that look like instructional text rather than entities
+                entities = [e for e in entities if not re.match(
+                    r'^(\d+\s+)?(points?|examples?|use cases?|details?|differences?)$',
+                    e, re.IGNORECASE,
+                )]
+                return entities
 
         return []
 
@@ -283,8 +300,25 @@ class AmbiguityResolver:
         for c in candidates:
             if c.lower() not in prior_lower and len(c) > 1:
                 # Filter out sentence-start capitals and common words
-                if c not in {"Now", "What", "Can", "How", "Also", "Add",
-                             "Include", "And", "With", "The", "I"}:
+                if c not in {
+                    # Sentence-start capitals and common English words
+                    # that appear in all-caps queries (e.g. "EC2 AND LAMBDA
+                    # FOR 10 DISTINCT POINTS") and are NOT entity names.
+                    "Now", "What", "Can", "How", "Also", "Add",
+                    "Include", "And", "With", "The", "I",
+                    "For", "In", "Is", "Of", "On", "To", "Or", "By",
+                    "An", "At", "If", "It", "So", "Do", "No", "Be",
+                    "But", "Not", "All", "Are", "Was", "Has", "Its",
+                    # Common query words that aren't entities
+                    "Difference", "Between", "Compare", "Explain",
+                    "Points", "Point", "Distinct", "Example", "Use",
+                    "Case", "Cases", "Each", "Every", "List", "Give",
+                    "Detail", "Details", "Brief", "About", "Which",
+                    "When", "Where", "Why", "Does", "Show", "Tell",
+                    # ALL-CAPS versions (query may be mixed-case)
+                    "AND", "OR", "FOR", "THE", "BUT", "NOT",
+                    "WITH", "FROM", "THAT", "THIS", "EACH",
+                }:
                     new.append(c)
         return list(dict.fromkeys(new))  # deduplicate preserving order
 
@@ -411,13 +445,14 @@ Since this is a COMPARISON query, your JSON response MUST include a "display" fi
   "entities": {entities},
   "features": [
     {{
-      "name": "Feature name (e.g. Performance, Cost, Learning Curve)",
+      "name": "<REPLACE with actual feature name like Performance, Cost, Scalability, etc.>",
       {entity_cols}
     }}
   ],
-  "verdict": "One sentence stating which is best and for what use case, or 'It depends on...' if contextual"
+  "verdict": "<REPLACE with one sentence stating which is best and why>"
 }}
-Include 6-10 meaningful features. Each feature value should be 1-2 sentences max, not just a word.
+CRITICAL: Do NOT copy the angle-bracket placeholders. Replace every <REPLACE ...> with real content from the context.
+Include 6-10 meaningful features. Each feature value should be 1-2 sentences describing that entity's characteristic, not just a word.
 """,
 
         "pros_cons": """
@@ -567,7 +602,7 @@ Since this is a LIST query, your JSON response MUST include a "display" field:
         if fmt == "comparison" and entities:
             entity_list = str(entities)
             entity_cols = ", ".join(
-                f'"{e}": "Value for {e}"' for e in entities
+                f'"{e}": "<REPLACE with 1-2 sentences about {e} for this feature>"' for e in entities
             )
             schema = schema.format(entities=entity_list, entity_cols=entity_cols)
         else:

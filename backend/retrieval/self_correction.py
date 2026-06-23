@@ -63,9 +63,16 @@ class MultiPassRetriever:
             if pass_num < max_passes:
                 logger.info("Insufficient good evidence. Triggering self-correction search.")
                 concepts = query_plan.get("concepts", [])
+                intent = query_plan.get("intent", "")
                 if concepts:
-                    # Simple deterministic rewrite for next pass
-                    current_query = f"{concepts[0]} explanation definition"
+                    # Build a rewrite that preserves all concepts + the intent.
+                    # Old behaviour only used concepts[0], which lost half of
+                    # a comparison query (e.g. "AWS EC2 vs Lambda" → "AWS EC2
+                    # explanation definition", dropping Lambda entirely).
+                    if intent == "comparison" and len(concepts) >= 2:
+                        current_query = f"{concepts[0]} vs {concepts[1]}"
+                    else:
+                        current_query = " ".join(concepts) + " explanation definition"
                 else:
                     break
                     

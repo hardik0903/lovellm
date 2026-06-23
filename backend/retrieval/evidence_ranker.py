@@ -11,9 +11,37 @@ class EvidenceRanker:
         self.high_quality_domains = [
             "wikipedia.org", "britannica.com", "nature.com", "sciencedirect.com",
             "arxiv.org", "github.com", "stackoverflow.com", "mit.edu", "stanford.edu",
-            "khanacademy.org", "investopedia.com", "developer.mozilla.org", "docs.python.org"
+            "khanacademy.org", "investopedia.com", "developer.mozilla.org", "docs.python.org",
+            # Cloud / tech documentation & tutorial sites
+            "aws.amazon.com", "docs.aws.amazon.com", "cloud.google.com",
+            "learn.microsoft.com", "azure.microsoft.com",
+            "digitalocean.com", "medium.com", "dev.to",
+            "geeksforgeeks.org", "javatpoint.com", "tutorialspoint.com",
+            "baeldung.com", "freecodecamp.org", "realpython.com",
+            "towardsdatascience.com", "analyticsvidhya.com",
         ]
         
+    def _tokenize(self, text: str) -> List[str]:
+        """Split text into lowercase word tokens."""
+        return re.findall(r'\b\w+\b', text.lower())
+
+    def _concept_token_overlap(self, concept: str, snippet_lower: str) -> float:
+        """Return a 0.0-1.0 score for how well *concept* matches *snippet_lower*.
+
+        Instead of requiring the exact concept string to appear verbatim
+        (e.g. "aws ec2"), we tokenize the concept and check what fraction
+        of its tokens are present anywhere in the snippet.  A full match
+        still scores 1.0; partial matches get proportional credit.
+        """
+        # Fast path: exact substring match
+        if concept.lower() in snippet_lower:
+            return 1.0
+        tokens = self._tokenize(concept)
+        if not tokens:
+            return 0.0
+        hits = sum(1 for t in tokens if t in snippet_lower)
+        return hits / len(tokens)
+
     def score_evidence(self, query_plan: Dict[str, Any], snippet: str, url: str) -> int:
         score = 0
         snippet_lower = snippet.lower()
@@ -24,12 +52,13 @@ class EvidenceRanker:
             concepts = [query_plan.get("normalized_query", "")]
             
         # 1. Semantic/Concept Match (Max 40 points)
+        # Token-level overlap: each concept contributes proportionally
         concept_match_score = 0
+        per_concept_max = 40 // max(len(concepts), 1)
         for concept in concepts:
-            # check if concept exists in snippet
-            if concept.lower() in snippet_lower:
-                concept_match_score += (40 // len(concepts))
-        score += concept_match_score
+            overlap = self._concept_token_overlap(concept, snippet_lower)
+            concept_match_score += int(per_concept_max * overlap)
+        score += min(concept_match_score, 40)
         
         # 2. Source Quality (Max 30 points)
         quality_score = 10 # base score for any result
@@ -51,8 +80,16 @@ class EvidenceRanker:
                 intent_score = 30
                 
         elif intent == "comparison":
-            if any(term in snippet_lower for term in ["difference", "compared to", "vs", "versus", "while"]):
+            if any(term in snippet_lower for term in ["difference", "compared to", "vs", "versus", "while", "unlike", "whereas"]):
                 intent_score = 30
+            # Partial credit: snippet mentions both sides of a comparison
+            elif len(concepts) >= 2:
+                sides_mentioned = sum(
+                    1 for c in concepts
+                    if self._concept_token_overlap(c, snippet_lower) >= 0.5
+                )
+                if sides_mentioned >= 2:
+                    intent_score = 25
                 
         elif intent == "troubleshooting":
             if any(term in snippet_lower for term in ["error", "fix", "solution", "resolve"]):
@@ -80,3 +117,4 @@ class EvidenceRanker:
                 
         ranked.sort(key=lambda x: x["evidence_score"], reverse=True)
         return ranked
+

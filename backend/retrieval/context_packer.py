@@ -50,6 +50,7 @@ class ContextPackConfig:
     global_max_tokens: int = 1800
     max_chunks: int = 7
     max_per_document: int = 3
+    max_per_document_web: int = 5
     max_per_parent: int = 2
     raw_bias: float = 1.0
     parent_bias: float = 0.72
@@ -104,7 +105,7 @@ class AdaptiveContextPacker:
             if mode_l == "doc_rag":
                 base_budget = self.config.default_max_tokens
             elif mode_l == "web_rag":
-                base_budget = 1200
+                base_budget = 1800
             elif mode_l == "direct_web":
                 base_budget = 900
             else:
@@ -296,7 +297,12 @@ class AdaptiveContextPacker:
             doc_id = str(chunk.get("metadata", {}).get("document_id", chunk.get("document_id", "unknown")))
             parent_id = str(chunk.get("metadata", {}).get("parent_id", chunk.get("parent_id", "unknown")))
 
-            if doc_counts.get(doc_id, 0) >= self.config.max_per_document:
+            effective_doc_cap = (
+                self.config.max_per_document_web
+                if effective_mode == "web_rag"
+                else self.config.max_per_document
+            )
+            if doc_counts.get(doc_id, 0) >= effective_doc_cap:
                 continue
             if parent_counts.get(parent_id, 0) >= self.config.max_per_parent:
                 continue
@@ -322,7 +328,12 @@ class AdaptiveContextPacker:
                     continue
                 doc_id = str(chunk.get("metadata", {}).get("document_id", chunk.get("document_id", "unknown")))
                 parent_id = str(chunk.get("metadata", {}).get("parent_id", chunk.get("parent_id", "unknown")))
-                if doc_counts.get(doc_id, 0) >= self.config.max_per_document:
+                backfill_doc_cap = (
+                    self.config.max_per_document_web
+                    if effective_mode == "web_rag"
+                    else self.config.max_per_document
+                )
+                if doc_counts.get(doc_id, 0) >= backfill_doc_cap:
                     continue
                 if parent_counts.get(parent_id, 0) >= self.config.max_per_parent:
                     continue

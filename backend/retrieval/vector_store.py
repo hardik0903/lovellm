@@ -5,6 +5,27 @@ from sentence_transformers import SentenceTransformer
 from logger import logger
 import diskcache
 import json
+
+# ---------------------------------------------------------------------------
+# Monkey-patch: ChromaDB 0.5.0's _decode_seq_id crashes with
+#   TypeError: object of type 'int' has no len()
+# when the persisted SQLite DB stores seq_ids as plain ints instead of
+# 8-byte blobs.  This patch makes the decoder accept both representations.
+# ---------------------------------------------------------------------------
+try:
+    from chromadb.segment.impl.metadata import sqlite as _sqlite_mod
+    _original_decode = _sqlite_mod._decode_seq_id
+
+    def _patched_decode_seq_id(seq_id_bytes):  # noqa: N802
+        if isinstance(seq_id_bytes, int):
+            return seq_id_bytes
+        return _original_decode(seq_id_bytes)
+
+    _sqlite_mod._decode_seq_id = _patched_decode_seq_id
+    logger.debug("Applied ChromaDB _decode_seq_id monkey-patch.")
+except Exception as _patch_err:
+    logger.warning(f"Could not apply ChromaDB seq_id patch: {_patch_err}")
+
 class VectorStore:
     def __init__(self, persist_dir: str = "./data/chroma"):
         os.makedirs(persist_dir, exist_ok=True)

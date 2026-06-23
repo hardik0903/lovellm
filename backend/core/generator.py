@@ -13,20 +13,21 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 OLLAMA_MODEL    = os.getenv("OLLAMA_MODEL", "")   # e.g. "llama3.2"
 
 # Max tokens for Ollama responses. Ollama's default is often very small (128-256)
-# which truncates JSON mid-output. 1024 gives ample room for the answer schema.
-OLLAMA_MAX_TOKENS = int(os.getenv("OLLAMA_MAX_TOKENS", "1024"))
+# which truncates JSON mid-output. 1536 gives ample room for structured comparison
+# tables and other rich schema responses.
+OLLAMA_MAX_TOKENS = int(os.getenv("OLLAMA_MAX_TOKENS", "1536"))
 
 # Context window passed to Ollama on every generation call.
 # Ollama pre-allocates the FULL KV-cache buffer at model load time based on
 # this value — not incrementally as tokens arrive. On an RTX 3050 4 GB:
 #   llama3.2 weights ≈ 2000 MB  +  OS/driver ≈ 200 MB  =  2200 MB fixed.
 #   Remaining headroom: ~1896 MB.
+#   KV-cache @ num_ctx=4096                  ≈  560 MB  → 1336 MB margin. ✓
 #   KV-cache @ num_ctx=8192 (Ollama default) ≈ 1742 MB  → OOM (21 MB short).
-#   KV-cache @ num_ctx=2048                  ≈  280 MB  → 1616 MB margin. ✓
-# The RAG prompt (≤5 chunks × ~300 tokens + system boilerplate) never exceeds
-# ~2000 tokens, so 2048 is sufficient for answer quality.
+# The web_rag prompt (context_budget=1800 + system~400 + max_output=1536)
+# needs ~3736 tokens, so 4096 is the minimum safe window.
 # Override via OLLAMA_NUM_CTX env var if you upgrade to a GPU with more VRAM.
-OLLAMA_NUM_CTX = int(os.getenv("OLLAMA_NUM_CTX", "2048"))
+OLLAMA_NUM_CTX = int(os.getenv("OLLAMA_NUM_CTX", "4096"))
 
 
 class AnswerGenerator:
