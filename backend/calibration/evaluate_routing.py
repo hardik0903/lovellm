@@ -23,6 +23,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import _path_setup  # noqa: F401
 
 from confidence_calibrator import ConfidenceCalibrator  # noqa: E402
 from math_detector import MathDetector  # noqa: E402

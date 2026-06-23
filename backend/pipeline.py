@@ -1,3 +1,4 @@
+import _path_setup  # noqa: F401
 import json
 import asyncio
 import time

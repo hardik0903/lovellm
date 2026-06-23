@@ -52,6 +52,7 @@ from typing import Dict, List, Tuple
 # Make sibling modules importable when run from the backend/ directory.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import _path_setup  # noqa: F401
 
 # NOTE: We import the individual *detector* classes directly rather than the
 # full AgentRegistry / agent classes. The agents themselves pull in heavy,

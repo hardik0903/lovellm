@@ -21,6 +21,10 @@ Usage:
 """
 
 
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), ".."))
+import _path_setup  # noqa: F401
+
 import argparse
 import asyncio
 import json
