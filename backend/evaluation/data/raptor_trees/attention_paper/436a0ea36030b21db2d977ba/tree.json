@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "document_id": "attention_paper",
+  "levels": {
+    "1": [
+      {
+        "node_id": "attention_paper_raptor_l1_0ba4a402a8",
+        "level": 1,
+        "text": "The Transformer model architecture proposes a novel approach to sequential computation by relying entirely on self-attention mechanisms, rather than recurrent neural networks (RNNs) or convolutional neural networks (CNNs). This allows for significantly more parallelization and enables the model to reach state-of-the-art performance in various tasks. The Transformer's self-attention mechanism reduces the number of operations required to relate signals from two arbitrary input or output positions, growing linearly with distance in ConvS2S and logarithmically in ByteNet. In contrast, the Extended Neural GPU, ByteNet, and ConvS2S models require more computational resources as the distance between positions increases. The Transformer mitigates this limitation by using a constant number of operations, albeit at the cost of reduced effective resolution due to averaging attention-weighted positions. To address this, the model employs Multi-Head Attention, which counteracts the effect described in section 3.2. Self-attention has been successfully applied in various tasks, including reading comprehension, abstractive summarization, and textual entailment. The Transformer is distinct from end-to-end memory networks, which rely on a recurrent attention mechanism, and models such as Extended Neural GPU, ByteNet, and ConvS2S, which use convolutional neural networks as basic building blocks.",
+        "document_id": "attention_paper",
+        "child_chunk_ids": [
+          "attention_paper_page_2_parent_0_child_3",
+          "attention_paper_page_2_parent_1",
+          "attention_paper_page_2_parent_1_child_0",
+          "attention_paper_page_2_parent_1_child_1",
+          "attention_paper_page_2_parent_2",
+          "attention_paper_page_2_parent_2_child_0",
+          "attention_paper_page_3_parent_0",
+          "attention_paper_page_3_parent_0_child_0",
+          "attention_paper_page_3_parent_0_child_1",
+          "attention_paper_page_3_parent_0_child_2",
+          "attention_paper_page_5_parent_1",
+          "attention_paper_page_5_parent_1_child_0",
+          "attention_paper_page_5_parent_1_child_1",
+          "attention_paper_page_5_parent_2",
+          "attention_paper_page_5_parent_2_child_0",
+          "attention_paper_page_5_parent_2_child_1",
+          "attention_paper_page_6_parent_0",
+          "attention_paper_page_6_parent_0_child_0",
+          "attention_paper_page_6_parent_0_child_1",
+          "attention_paper_page_6_parent_0_child_2",
+          "attention_paper_page_6_parent_0_child_4",
+          "attention_paper_page_6_parent_1",
+          "attention_paper_page_6_parent_1_child_0",
+          "attention_paper_page_6_parent_1_child_1",
+          "attention_paper_page_6_parent_1_child_2",
+          "attention_paper_page_7_parent_0",
+          "attention_paper_page_7_parent_0_child_1",
+          "attention_paper_page_7_parent_0_child_2",
+          "attention_paper_page_8_parent_0_child_1"
+        ],
+        "source_file": "attention_paper.pdf"
+      },
+      {
+        "node_id": "attention_paper_raptor_l1_14c6f98d56",
+        "level": 1,
+        "text": "The Transformer is a new simple network architecture based solely on attention mechanisms, replacing complex recurrent or convolutional neural networks. The dominant sequence transduction models include an encoder and decoder connected through an attention mechanism. The proposed Transformer achieves superior quality in machine translation tasks while being more parallelizable and requiring significantly less training time. Experiments show the model achieving 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over existing best results by over 2 BLEU, and establishing a new single-model state-of-the-art BLEU score of 41.8 on the WMT 2014 English-to-French translation task after training for 3.5 days on eight GPUs. The Transformer generalizes well to other tasks, including English constituency parsing with large and limited training data. Key contributors include Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Łukasz Kaiser, Illia Polosukhin, and others who have made significant contributions to the development of the model.",
+        "document_id": "attention_paper",
+        "child_chunk_ids": [
+          "attention_paper_page_1_parent_0",
+          "attention_paper_page_1_parent_0_child_1",
+          "attention_paper_page_1_parent_0_child_3",
+          "attention_paper_page_2_parent_0",
+          "attention_paper_page_2_parent_0_child_0",
+          "attention_paper_page_2_parent_0_child_1",
+          "attention_paper_page_2_parent_0_child_2",
+          "attention_paper_page_2_parent_1_child_2",
+          "attention_paper_page_2_parent_1_child_3",
+          "attention_paper_page_5_parent_3",
+          "attention_paper_page_5_parent_3_child_0",
+          "attention_paper_page_7_parent_0_child_0",
+          "attention_paper_page_7_parent_2",
+          "attention_paper_page_7_parent_2_child_0",
+          "attention_paper_page_7_parent_2_child_1",
+          "attention_paper_page_9_parent_0_child_3",
+          "attention_paper_page_9_parent_0_child_4",
+          "attention_paper_page_9_parent_1",
+          "attention_paper_page_9_parent_1_child_0",
+          "attention_paper_page_9_parent_1_child_1",
+          "attention_paper_page_10_parent_0",
+          "attention_paper_page_10_parent_0_child_0",
+          "attention_paper_page_10_parent_0_child_2",
+          "attention_paper_page_10_parent_0_child_3",
+          "attention_paper_page_10_parent_1_child_1",
+          "attention_paper_page_11_parent_0",
+          "attention_paper_page_11_parent_0_child_0",
+          "attention_paper_page_11_parent_0_child_1",
+          "attention_paper_page_11_parent_0_child_2",
+          "attention_paper_page_11_parent_0_child_3",
+          "attention_paper_page_11_parent_0_child_4",
+          "attention_paper_page_11_parent_1",
+          "attention_paper_page_11_parent_1_child_0",
+          "attention_paper_page_11_parent_1_child_1",
+          "attention_paper_page_11_parent_1_child_2",
+          "attention_paper_page_12_parent_0",
+          "attention_paper_page_12_parent_0_child_0",
+          "attention_paper_page_12_parent_0_child_1",
+          "attention_paper_page_12_parent_0_child_2",
+          "attention_paper_page_12_parent_0_child_3",
+          "attention_paper_page_12_parent_0_child_4",
+          "attention_paper_page_12_parent_1",
+          "attention_paper_page_12_parent_1_child_0",
+          "attention_paper_page_12_parent_1_child_1",
+          "attention_paper_page_12_parent_1_child_2"
+        ],
+        "source_file": "attention_paper.pdf"
+      },
+      {
+        "node_id": "attention_paper_raptor_l1_e73d2b1ae0",
+        "level": 1,
+        "text": "This document discusses the collaborative work of multiple researchers in developing and improving Transformer models. Ashish, Illia, Noam, Niki, Llion, Lukasz, and Aidan have all been crucially involved in every aspect of this work, with each contributing significantly to the design, implementation, tuning, and evaluation of model variants. Notably, Noam proposed scaled dot-product attention, multi-head attention, and parameter-free position representation, while Niki designed and implemented numerous model variants in the original codebase and tensor2tensor. Llion experimented with novel model variants and was responsible for initial codebase development and efficient inference/visualizations. Lukasz and Aidan spent extensive time designing and implementing tensor2tensor, replacing an earlier codebase and greatly improving results. The work was performed while at Google Brain and Google Research, and the findings were presented at the 31st Conference on Neural Information Processing Systems (NIPS 2017) in Long Beach, CA, USA.",
+        "document_id": "attention_paper",
+        "child_chunk_ids": [
+          "attention_paper_page_1_parent_0_child_4",
+          "attention_paper_page_1_parent_1",
+          "attention_paper_page_1_parent_1_child_0",
+          "attention_paper_page_1_parent_1_child_1",
+          "attention_paper_page_10_parent_0_child_4",
+          "attention_paper_page_10_parent_1",
+          "attention_paper_page_10_parent_1_child_0"
+        ],
+        "source_file": "attention_paper.pdf"
+      },
+      {
+        "node_id": "attention_paper_raptor_l1_6456693d07",
+        "level": 1,
+        "text": "The Transformer model achieves superior quality in machine translation tasks, outperforming existing models by over 2 BLEU scores on the WMT 2014 English-to-German and English-to-French translation tasks. The base model achieves 28.4 BLEU on German and 41.8 BLEU on French after training for 3.5 days on eight GPUs, while a larger variant of the model reaches state-of-the-art scores in just twelve hours on eight P100 GPUs. The Transformer's parallelization capabilities allow it to reach these results at a fraction of the training costs of previous models. To improve performance, the authors employ dropout and label smoothing techniques, applying dropout to sub-layer inputs and positional encodings with a rate of 0.1, and using label smoothing with a value of 0.1. This approach hurts perplexity but improves accuracy and BLEU score. The Transformer's performance is compared to other state-of-the-art models in Table 2, which shows the model achieving better BLEU scores on both English-to-German and English-to-French tests at significantly reduced training costs.",
+        "document_id": "attention_paper",
+        "child_chunk_ids": [
+          "attention_paper_page_1_parent_0_child_2",
+          "attention_paper_page_2_parent_0_child_4",
+          "attention_paper_page_8_parent_0",
+          "attention_paper_page_8_parent_0_child_0",
+          "attention_paper_page_8_parent_2",
+          "attention_paper_page_8_parent_2_child_0",
+          "attention_paper_page_8_parent_2_child_1",
+          "attention_paper_page_8_parent_3",
+          "attention_paper_page_8_parent_3_child_0",
+          "attention_paper_page_9_parent_0",
+          "attention_paper_page_9_parent_0_child_0"
+        ],
+        "source_file": "attention_paper.pdf"
+      },
+      {
+        "node_id": "attention_paper_raptor_l1_9974ce7fd0",
+        "level": 1,
+        "text": "This document discusses the behavior of individual attention heads in deep neural networks, particularly in relation to syntactic and semantic structure of sentences. The authors present examples from American governments' laws passed since 2009, which have made voting or registration processes more difficult. These examples are repeated multiple times with minor variations, likely for demonstration purposes. The focus is on the attention mechanism's ability to follow long-distance dependencies in the encoder self-attention layer 5 of 6, as illustrated by Figure 3. In this context, many attention heads attend to a distant dependency of the verb 'making', completing the phrase 'making...more difficult'. The use of different colors represents different heads, and the figure is best viewed in color due to its visual nature.",
+        "document_id": "attention_paper",
+        "child_chunk_ids": [
+          "attention_paper_page_7_parent_0_child_3",
+          "attention_paper_page_13_parent_0",
+          "attention_paper_page_13_parent_0_child_0",
+          "attention_paper_page_13_parent_0_child_1",
+          "attention_paper_page_14_parent_0",
+          "attention_paper_page_14_parent_0_child_0",
+          "attention_paper_page_14_parent_0_child_1",
+          "attention_paper_page_15_parent_0",
+          "attention_paper_page_15_parent_0_child_0",
+          "attention_paper_page_15_parent_0_child_1"
+        ],
+        "source_file": "attention_paper.pdf"
+      },
+      {
+        "node_id": "attention_paper_raptor_l1_259dddc026",
+        "level": 1,
+        "text": "This document discusses two primary attention mechanisms in natural language processing: Scaled Dot-Product Attention and Multi-Head Attention. Both are used in transformer architectures for text encoding. The key difference between them lies in their implementation and performance characteristics. Scaled Dot-Product Attention is a widely used mechanism that computes the dot product of query vectors with all key vectors, normalizing by the square root of the dimensionality to prevent division by zero. This results in a softmax function being applied to obtain weights for the values. The scaling factor of 1/√dk improves performance and efficiency. Multi-Head Attention is an extension that applies multiple instances of Scaled Dot-Product Attention in parallel, allowing for more efficient processing of large input sequences. While both mechanisms have similar theoretical complexity, Multi-Head Attention outperforms Scaled Dot-Product Attention without scaling for larger values of dimensionality due to its ability to mitigate the effect of extremely large dot products on the softmax function's gradients.",
+        "document_id": "attention_paper",
+        "child_chunk_ids": [
+          "attention_paper_page_3_parent_0_child_3",
+          "attention_paper_page_4_parent_0",
+          "attention_paper_page_4_parent_0_child_0",
+          "attention_paper_page_4_parent_0_child_1",
+          "attention_paper_page_4_parent_0_child_2",
+          "attention_paper_page_4_parent_0_child_3",
+          "attention_paper_page_4_parent_0_child_4",
+          "attention_paper_page_4_parent_0_child_5",
+          "attention_paper_page_4_parent_1",
+          "attention_paper_page_4_parent_1_child_0",
+          "attention_paper_page_4_parent_1_child_1",
+          "attention_paper_page_4_parent_1_child_2",
+          "attention_paper_page_5_parent_0",
+          "attention_paper_page_5_parent_0_child_0",
+          "attention_paper_page_5_parent_0_child_1",
+          "attention_paper_page_5_parent_1_child_2"
+        ],
+        "source_file": "attention_paper.pdf"
+      },
+      {
+        "node_id": "attention_paper_raptor_l1_dddf58211a",
+        "level": 1,
+        "text": "The Attention Is All You Need paper proposes a novel approach to natural language processing, introducing a new method for modeling attention in neural networks. The authors, Ashish Vaswani and Noam Shazeer, among others, developed a transformer-based architecture that leverages sinusoidal positional embeddings to enable relative position awareness. This allows the model to attend to different parts of the input sequence based on their relative positions, rather than absolute positions. The sinusoidal function is chosen because it can be represented as a linear function of the original input embedding, facilitating efficient computation. The authors experimented with learned positional embeddings and found that both versions produced nearly identical results, as shown in Table 3 row (E). The training regime for the models involves a specific approach, although details are not provided in this section.",
+        "document_id": "attention_paper",
+        "child_chunk_ids": [
+          "attention_paper_page_1_parent_0_child_0",
+          "attention_paper_page_6_parent_0_child_3",
+          "attention_paper_page_7_parent_1",
+          "attention_paper_page_7_parent_1_child_0",
+          "attention_paper_page_7_parent_3",
+          "attention_paper_page_7_parent_3_child_0",
+          "attention_paper_page_7_parent_4",
+          "attention_paper_page_7_parent_4_child_0",
+          "attention_paper_page_7_parent_5",
+          "attention_paper_page_7_parent_5_child_0",
+          "attention_paper_page_8_parent_0_child_2",
+          "attention_paper_page_8_parent_1",
+          "attention_paper_page_8_parent_1_child_0",
+          "attention_paper_page_8_parent_2_child_2",
+          "attention_paper_page_8_parent_2_child_3",
+          "attention_paper_page_9_parent_0_child_1",
+          "attention_paper_page_9_parent_0_child_2",
+          "attention_paper_page_10_parent_0_child_1"
+        ],
+        "source_file": "attention_paper.pdf"
+      }
+    ],
+    "2": [
+      {
+        "node_id": "attention_paper_raptor_l2_0c86458dec",
+        "level": 2,
+        "text": "The Transformer model architecture proposes a novel approach to sequential computation using self-attention mechanisms, enabling significant parallelization and achieving state-of-the-art performance in various tasks. The model's self-attention mechanism reduces operations required for relating signals from arbitrary input or output positions, growing linearly with distance in ConvS2S and logarithmically in ByteNet. In contrast, models like Extended Neural GPU, ByteNet, and ConvS2S require more computational resources as distance increases. The Transformer mitigates this limitation by using Multi-Head Attention, which counteracts the effect of reduced effective resolution due to averaging attention-weighted positions. The model has been successfully applied in tasks such as reading comprehension, abstractive summarization, and textual entailment. Notably, the Transformer achieves superior quality in machine translation tasks, outperforming existing models by over 2 BLEU scores on WMT 2014 English-to-German and English-to-French translation tasks. Key contributors include Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Łukasz Kaiser, Illia Polosukhin, and others who have made significant contributions to the development of the model. The Transformer's parallelization capabilities allow it to reach these results at a fraction of the training costs of previous models, with techniques such as dropout and label smoothing improving performance while hurting perplexity.",
+        "document_id": "attention_paper",
+        "child_chunk_ids": [
+          "attention_paper_raptor_l1_0ba4a402a8",
+          "attention_paper_raptor_l1_14c6f98d56",
+          "attention_paper_raptor_l1_e73d2b1ae0",
+          "attention_paper_raptor_l1_6456693d07",
+          "attention_paper_raptor_l1_9974ce7fd0",
+          "attention_paper_raptor_l1_259dddc026",
+          "attention_paper_raptor_l1_dddf58211a"
+        ],
+        "source_file": "attention_paper.pdf"
+      }
+    ]
+  },
+  "stats": {
+    "skipped": false,
+    "levels_built": 2,
+    "total_summary_nodes": 8,
+    "level_detail": [
+      {
+        "level": 1,
+        "clusters": 7,
+        "input_nodes": 136
+      },
+      {
+        "level": 2,
+        "clusters": 1,
+        "input_nodes": 7
+      }
+    ],
+    "build_time_ms": 44011.427100005676,
+    "fingerprint": "436a0ea36030b21db2d977ba",
+    "source_file": "attention_paper.pdf",
+    "cache_version": "v1"
+  },
+  "metadata": {
+    "fingerprint": "436a0ea36030b21db2d977ba",
+    "source_file": "attention_paper.pdf",
+    "cache_version": "v1",
+    "levels_built": 2,
+    "summary_nodes": 8
+  }
+}

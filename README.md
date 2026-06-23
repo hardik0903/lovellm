@@ -34,7 +34,7 @@ All answers stream as Server-Sent Events (SSE). The system is designed for singl
 
 ## System Architecture
 
-![System Architecture](architecture.png)
+![System Architecture](arch.jpeg)
 
 ---
 
