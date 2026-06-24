@@ -163,6 +163,10 @@ class PerQueryResult:
     candidate_counts: Dict[str, int]   = field(default_factory=dict)
     notes: List[str]                   = field(default_factory=list)
     stage_timings_ms: Dict[str, float] = field(default_factory=dict)
+    # E-5 FIX: explicit failure flag so judge failures count as 0.0 rather
+    # than being silently excluded from aggregate means.
+    _judge_failed: bool                = False
+
 
 
 # ---------------------------------------------------------------------------
@@ -314,7 +318,11 @@ def _classify_retrieval_complexity(query: str) -> str:
 
     word_count = len(q.split())
     simple_prefixes = ("what is ", "who is ", "when is ", "where is ", "define ", "what does ")
-    if word_count <= 8 and q.startswith(simple_prefixes):
+    # E-4 FIX: raised from <= 8 to <= 12 to align with the retriever.py
+    # multi-hop trigger threshold. Previously, queries up to 8 words starting
+    # with a simple prefix were correctly classified as simple but anything
+    # 9-12 words would fall through to multi_hop even for plain semantic lookups.
+    if word_count <= 12 and q.startswith(simple_prefixes):
         return "simple"
 
     if not is_legal(q):
@@ -868,7 +876,20 @@ class LLMJudge:
             else:
                 print(f"  [JUDGE/gemini] Could not parse JSON after {JUDGE_MAX_RETRIES} attempts.")
 
-        return {}
+        # E-5 FIX: instead of returning {} (which becomes None scores that are
+        # silently excluded from aggregate means), return a sentinel with explicit
+        # 0.0 scores. The _judge_failed flag lets callers distinguish genuine
+        # zero scores from failure-injected zeros in the output JSON.
+        return {
+            "_judge_failed":       True,
+            "correctness_score":   0.0,
+            "completeness_score":  0.0,
+            "faithfulness_score":  0.0,
+            "correctness_detail":  "judge_failed_after_retries",
+            "completeness_detail": "judge_failed_after_retries",
+            "faithfulness_detail": "judge_failed_after_retries",
+        }
+
 
     # ------------------------------------------------------------------
     # Public evaluation methods
@@ -959,11 +980,15 @@ Return ONLY valid JSON with exactly these keys (no markdown fences):
             detail_key: str,
             labels: Optional[set] = None,
         ) -> Tuple[Optional[float], str]:
+            # E-5 FIX: treat judge-failure sentinel as explicit 0.0 (not None).
+            if result.get("_judge_failed"):
+                return 0.0, result.get(detail_key, "judge_failed_after_retries")
             score = self._normalize_score(result, score_key, supported_labels=labels or set())
             detail = result.get(detail_key, "")
             if score is None:
                 return None, "judge returned invalid JSON"
             return float(score), str(detail)
+
 
         return (
             _extract(cc_result,    "correctness_score",  "correctness_detail",  {"correct", "supported"}),
@@ -1331,6 +1356,13 @@ async def evaluate_document(
             correctness_detail=correct_detail,
             completeness_detail=complete_detail,
             faithfulness_detail=faith_detail,
+            # E-5 FIX: propagate judge failure flag so the output JSON marks
+            # which questions had their scores injected as 0.0 vs genuinely judged.
+            _judge_failed=(
+                correct_detail == "judge_failed_after_retries"
+                or complete_detail == "judge_failed_after_retries"
+                or faith_detail == "judge_failed_after_retries"
+            ),
             route=retriever_trace.get("route", ""),
             query_variants=retriever_trace.get("query_variants", []),
             query_features=retriever_trace.get("query_features", {}),
@@ -1343,6 +1375,7 @@ async def evaluate_document(
             notes=retriever_trace.get("notes", []),
             stage_timings_ms=retriever_trace.get("stage_timings_ms", {}),
         ))
+
 
     return results
 
@@ -1465,11 +1498,24 @@ def _fmt_ms(d: Dict[str, float]) -> str:
 
 
 def compute_aggregate(results: List[PerQueryResult]) -> Dict[str, Any]:
-    agg = {"config": "routed_hybrid", "n_questions": len(results)}
+    # E-5 FIX: include ALL results in the aggregate — judge-failed questions
+    # now carry explicit 0.0 scores rather than None, so excluding None values
+    # is equivalent to excluding only genuine parse errors (which should be 0).
+    # We also report the failure count so the figure is transparently an
+    # inclusive mean, not a best-case upper bound.
+    judge_failures = sum(1 for r in results if getattr(r, "_judge_failed", False))
+    agg = {
+        "config": "routed_hybrid",
+        "n_questions": len(results),
+        "judge_failures": judge_failures,
+    }
     for label, key in METRIC_KEYS:
+        # Use all non-None values; after E-5 the only Nones left are genuine
+        # parse errors on non-LLM metrics (e.g. context_precision edge cases).
         vals = [getattr(r, key) for r in results if getattr(r, key) is not None]
         agg[key] = mean_std(vals)
     return agg
+
 
 
 def compute_category_breakdown(results: List[PerQueryResult]) -> Dict[str, Any]:

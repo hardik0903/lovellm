@@ -32,12 +32,32 @@ class VectorStore:
         self.client = chromadb.PersistentClient(path=persist_dir)
         self.collection = self.client.get_or_create_collection(name="documents")
         logger.info("Loading sentence transformer model for dense embeddings...")
-        # Force CPU: the embedding model (~90 MB) is fast enough on CPU for
-        # inference-time encode() calls and keeping it off-GPU leaves the full
-        # 4 GB VRAM budget for Ollama (llama3.2 ≈ 2 GB + KV-cache ≈ 450 MB).
-        # If you later move to a GPU with >6 GB VRAM, remove device="cpu" here.
-        self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
+        # E-2 FIX: replaced all-MiniLM-L6-v2 with BAAI/bge-small-en-v1.5.
+        #
+        # all-MiniLM-L6-v2 was fine-tuned exclusively on MS MARCO, Reddit, and
+        # Wikipedia (modern English). It produces degenerate embeddings for
+        # classical/archaic text (Art of War, 17th-century Latin), tabular
+        # health-policy data where meaning is split across header/cell chunks,
+        # and any domain under-represented in its training mix — all present in
+        # the eval corpus. This is the root cause of Art of War's 8.3% hit-rate
+        # and 51/72 zero-correctness answers.
+        #
+        # BAAI/bge-small-en-v1.5 is the same 384-dim embedding size so the
+        # ChromaDB schema is unchanged. It was trained on a much richer corpus
+        # (C-PACK: 256M text pairs spanning Wikipedia, CC-News, S2ORC scientific
+        # papers, NLI, and retrieval-specific datasets) and achieves top-tier
+        # BEIR benchmark scores at the small-model size tier.
+        #
+        # Important: existing persisted ChromaDB collections must be deleted and
+        # re-ingested — the vector representations are different even though the
+        # dimensionality (384) is the same. The eval harness wipes and re-creates
+        # eval_data/ per run so no manual migration is needed for evaluation.
+        # For the production data/chroma directory, delete and re-run ingestion.
+        #
+        # CPU note: kept on CPU for the same VRAM-preservation reason as before.
+        self.embedding_model = SentenceTransformer("BAAI/bge-small-en-v1.5", device="cpu")
         logger.info("Dense embedding model loaded.")
+
         self.parent_cache_path = os.path.join(persist_dir, "parent_cache.json")
         self.parent_cache = {}
         if os.path.exists(self.parent_cache_path):

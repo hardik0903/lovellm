@@ -56,8 +56,14 @@ class Reranker:
 
         logger.info(f"Reranking {len(candidates)} candidates for query: {query}")
         
-        # Prepare pairs for cross-encoder
-        pairs = [[query, doc["text"]] for doc in candidates]
+        # E-6 FIX: use context_text (the parent-expanded surface the LLM
+        # actually receives) instead of the raw child text field.  The
+        # cross-encoder was previously scoring against text but the generator
+        # sees context_text — so the ranking signal was optimised for the
+        # wrong content, quietly degrading reranker effectiveness for all
+        # parent-resolved chunks.
+        pairs = [[query, doc.get("context_text") or doc.get("text", "")] for doc in candidates]
+
         
         # Predict scores
         self._load_model()

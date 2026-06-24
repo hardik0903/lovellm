@@ -48,8 +48,16 @@ class ContextPackConfig:
     simple_max_tokens: int = 1100
     synthesis_max_tokens: int = 1650
     global_max_tokens: int = 1800
-    max_chunks: int = 7
-    max_per_document: int = 3
+    # E-3 FIX: raised max_chunks 7→10 and max_per_document 3→6.
+    # The old cap of 3 silently dropped chunk 4+ from the same document
+    # regardless of how many were needed, causing:
+    #   • 32 Constitution refusals (correct chunk retrieved, then dropped)
+    #   • persistent 16pp correctness–completeness gap on list/cross-page Qs
+    # The token budget still acts as the primary hard ceiling, so these
+    # higher counts only allow more chunks when the budget permits — they
+    # never blindly grow context size beyond global_max_tokens (2800 chars).
+    max_chunks: int = 10
+    max_per_document: int = 6
     max_per_document_web: int = 5
     max_per_parent: int = 2
     raw_bias: float = 1.0

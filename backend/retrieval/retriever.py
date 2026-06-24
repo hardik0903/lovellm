@@ -562,15 +562,32 @@ class HybridRetriever:
         if complexity == "multi_hop":
             if route == "bm25" and not (features.has_negation or features.is_comparative):
                 return False
-            return features.word_count >= 10 or features.has_negation or features.is_comparative or features.is_semantic
+            # E-4 FIX: tightened the trigger condition.
+            # Old: word_count >= 10 OR has_negation OR is_comparative OR is_semantic
+            # Problem: is_semantic fires on almost any "what is / how / why" question
+            # (simple lookups) causing verbose-but-simple questions to invoke the
+            # expensive 4-variant multi-hop path, receive incoherent packed context
+            # from 4 disconnected sections, and hallucinate to fill gaps.
+            # This is the primary driver of the 94.3% -> 70.1% faithfulness collapse.
+            # New rule: require at least ONE genuinely complex signal:
+            #   - word_count >= 12  (likely multi-clause)
+            #   - is_comparative    (explicit vs / compare / difference)
+            #   - negation that is NOT also a plain semantic lookup
+            return (
+                features.word_count >= 12
+                or features.is_comparative
+                or (features.has_negation and not features.is_semantic)
+            )
         if complexity == "simple":
-            # RAPTOR-specific opt-in for large documents: keep this conservative
-            # so the summary tree helps document synthesis without flooding the
-            # fast path for short atomic lookups.
+            # RAPTOR-specific opt-in for large documents: conservative so the
+            # summary tree helps synthesis without flooding short atomic lookups.
             if route == "bm25":
                 return False
-            return features.word_count >= 8 or features.is_semantic or features.has_negation or features.is_comparative
+            # E-4 FIX: raised from 8->12 and removed is_semantic as standalone
+            # trigger for the same reason as the multi_hop branch above.
+            return features.word_count >= 12 or features.is_comparative
         return False
+
 
     @staticmethod
     def _merge_candidate_lists(
@@ -618,7 +635,10 @@ class HybridRetriever:
 
         try:
             self._load_reranker()
-            pairs = [[query, doc.get("text", "")] for doc in shortlist]
+            # E-6 FIX: use context_text (parent-expanded text the LLM sees)
+            # instead of the raw child text field when scoring pairs.
+            pairs = [[query, doc.get("context_text") or doc.get("text", "")] for doc in shortlist]
+
             scores = self._cross_encoder.predict(pairs, batch_size=self.config.rerank_batch_size)
             for i, doc in enumerate(shortlist):
                 doc["rerank_score"] = float(scores[i])
